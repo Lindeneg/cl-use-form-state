@@ -20,8 +20,8 @@ type GetInputOptions<T extends FormValueType, S extends FormStateConstraint = an
     maxValue?: number;
     minUppercaseCharacters?: number;
     maxUppercaseCharacters?: number;
-    minNumericalSymbols?: number; // TODO
-    maxNumericalSymbols?: number; // TODO
+    minNumericalSymbols?: number;
+    maxNumericalSymbols?: number;
     isRequired?: boolean;
     isValid?: boolean;
     isTouched?: boolean;
