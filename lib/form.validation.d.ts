@@ -18,5 +18,8 @@ export interface Validator {
     value: ValidationValue;
 }
 export declare type ValidationFunc = (value: FormValueType, isValid: boolean, validator: Validator, state: FormState<any>) => boolean;
-export declare const getValidator: (type: ValidationType, value: FormValueType) => Validator;
+export declare const count: (target: string, callback: (entry: string) => boolean) => number;
+export declare const countUpperCase: (target: string) => number;
+export declare const countNumbers: (target: string) => number;
+export declare const getValidator: (type: ValidationType, value: ValidationValue) => Validator;
 export declare const validate: (value: FormValueType, validators: Validator[], state: FormState<any>) => boolean;
