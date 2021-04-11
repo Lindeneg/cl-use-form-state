@@ -32,7 +32,7 @@ export type ValidationFunc = (
     state: FormState<any>
 ) => boolean;
 
-const count = (target: string, callback: (entry: string) => boolean): number => {
+export const count = (target: string, callback: (entry: string) => boolean): number => {
     let result = 0;
     for (let i = 0; i < target.length; i++) {
         if (callback(target[i])) {
@@ -40,6 +40,17 @@ const count = (target: string, callback: (entry: string) => boolean): number => 
         }
     }
     return result;
+};
+
+export const countUpperCase = (target: string): number => {
+    return count(target, (e) => e >= 'A' && e <= 'Z');
+};
+
+export const countNumbers = (target: string): number => {
+    return count(target, (e) => {
+        const n = parseInt(e);
+        return typeof n === 'number' && !Number.isNaN(n);
+    });
 };
 
 const validationFunc: { [key: string]: ValidationFunc } = {
@@ -59,25 +70,19 @@ const validationFunc: { [key: string]: ValidationFunc } = {
         return isValid && +value <= validator.value;
     },
     [ValidationType.MinUppercaseCharacters]: (value, isValid, validator) => {
-        const uppercaseChars: number = count(value.toString(), (e) => e >= 'A' && e <= 'Z');
+        const uppercaseChars: number = countUpperCase(value.toString());
         return isValid && uppercaseChars >= validator.value;
     },
     [ValidationType.MaxUppercaseCharacters]: (value, isValid, validator) => {
-        const uppercaseChars: number = count(value.toString(), (e) => e >= 'A' && e <= 'Z');
+        const uppercaseChars: number = countUpperCase(value.toString());
         return isValid && uppercaseChars <= validator.value;
     },
     [ValidationType.MinNumericalSymbols]: (value, isValid, validator) => {
-        const numericalSymbols: number = count(value.toString(), (e) => {
-            const n = parseInt(e);
-            return typeof n === 'number' && !Number.isNaN(n);
-        });
+        const numericalSymbols: number = countNumbers(value.toString());
         return isValid && numericalSymbols >= validator.value;
     },
     [ValidationType.MaxNumericalSymbols]: (value, isValid, validator) => {
-        const numericalSymbols: number = count(value.toString(), (e) => {
-            const n = parseInt(e);
-            return typeof n === 'number' && !Number.isNaN(n);
-        });
+        const numericalSymbols: number = countNumbers(value.toString());
         return isValid && numericalSymbols <= validator.value;
     },
     [ValidationType.CustomRule]: (value, isValid, validator, state) => {
@@ -85,7 +90,7 @@ const validationFunc: { [key: string]: ValidationFunc } = {
     }
 };
 
-export const getValidator = (type: ValidationType, value: FormValueType): Validator => ({ type, value });
+export const getValidator = (type: ValidationType, value: ValidationValue): Validator => ({ type, value });
 
 export const validate = (value: FormValueType, validators: Validator[], state: FormState<any>): boolean => {
     let isValid: boolean = true;
