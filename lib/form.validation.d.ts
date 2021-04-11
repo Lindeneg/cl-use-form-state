@@ -6,7 +6,9 @@ export declare enum ValidationType {
     MinValue = "minValue",
     MaxValue = "maxValue",
     MinUppercaseCharacters = "minUppercaseCharacters",
+    MaxUppercaseCharacters = "maxUppercaseCharacters",
     MinNumericalSymbols = "minNumericalSymbols",
+    MaxNumericalSymbols = "maxNumericalSymbols",
     CustomRule = "customRule"
 }
 export declare type CustomValidationRule<T extends FormValueType, S extends FormStateConstraint = any> = (value: T, state: FormState<S>) => boolean;
