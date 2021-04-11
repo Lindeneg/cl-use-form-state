@@ -51,7 +51,7 @@ export type FormState<T extends FormStateConstraint> = {
     isValid: boolean;
 };
 
-export function getInput<T extends FormValueType, S extends FormStateConstraint>(
+export function getInput<T extends FormValueType, S extends FormStateConstraint = any>(
     initialValue: T,
     options?: GetInputOptions<T, S>
 ): FormEntryState<T> {
@@ -66,7 +66,7 @@ export function getInput<T extends FormValueType, S extends FormStateConstraint>
         parsedOptions.isTouched = !!options.isTouched;
         parsedOptions.isValid = !!options.isValid;
         keys.forEach((key) => {
-            if (!(key in ['isValid', 'isTouched', 'connectedFields'])) {
+            if (!['isValid', 'isTouched', 'connectedFields'].includes(key)) {
                 parsedOptions.validators.push(getValidator(key as ValidationType, options[key] as T));
             }
         });
