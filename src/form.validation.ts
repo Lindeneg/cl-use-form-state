@@ -7,8 +7,9 @@ export enum ValidationType {
     MinValue = 'minValue',
     MaxValue = 'maxValue',
     MinUppercaseCharacters = 'minUppercaseCharacters',
+    MaxUppercaseCharacters = 'maxUppercaseCharacters',
     MinNumericalSymbols = 'minNumericalSymbols',
-    // TODO make the 'max' version of the two above types
+    MaxNumericalSymbols = 'maxNumericalSymbols',
     CustomRule = 'customRule'
 }
 
@@ -31,6 +32,16 @@ export type ValidationFunc = (
     state: FormState<any>
 ) => boolean;
 
+const count = (target: string, callback: (entry: string) => boolean): number => {
+    let result = 0;
+    for (let i = 0; i < target.length; i++) {
+        if (callback(target[i])) {
+            result++;
+        }
+    }
+    return result;
+};
+
 const validationFunc: { [key: string]: ValidationFunc } = {
     [ValidationType.Require]: (value, isValid) => {
         return isValid && value.toString().trim().length > 0;
@@ -48,26 +59,26 @@ const validationFunc: { [key: string]: ValidationFunc } = {
         return isValid && +value <= validator.value;
     },
     [ValidationType.MinUppercaseCharacters]: (value, isValid, validator) => {
-        let uppercaseChars: number = 0;
-        const stringifiedValue = value.toString();
-        for (let i = 0; i < stringifiedValue.length; i++) {
-            let e = stringifiedValue[i];
-            if (e >= 'A' && e <= 'Z') {
-                uppercaseChars++;
-            }
-        }
-        return isValid && uppercaseChars >= (validator.value || 0);
+        const uppercaseChars: number = count(value.toString(), (e) => e >= 'A' && e <= 'Z');
+        return isValid && uppercaseChars >= validator.value;
+    },
+    [ValidationType.MaxUppercaseCharacters]: (value, isValid, validator) => {
+        const uppercaseChars: number = count(value.toString(), (e) => e >= 'A' && e <= 'Z');
+        return isValid && uppercaseChars <= validator.value;
     },
     [ValidationType.MinNumericalSymbols]: (value, isValid, validator) => {
-        let numericalSymbols: number = 0;
-        const stringifiedValue = value.toString();
-        for (let i = 0; i < stringifiedValue.length; i++) {
-            let n = parseInt(stringifiedValue[i]);
-            if (typeof n === 'number' && !Number.isNaN(n)) {
-                numericalSymbols++;
-            }
-        }
-        return isValid && numericalSymbols >= (validator.value || 0);
+        const numericalSymbols: number = count(value.toString(), (e) => {
+            const n = parseInt(e);
+            return typeof n === 'number' && !Number.isNaN(n);
+        });
+        return isValid && numericalSymbols >= validator.value;
+    },
+    [ValidationType.MaxNumericalSymbols]: (value, isValid, validator) => {
+        const numericalSymbols: number = count(value.toString(), (e) => {
+            const n = parseInt(e);
+            return typeof n === 'number' && !Number.isNaN(n);
+        });
+        return isValid && numericalSymbols <= validator.value;
     },
     [ValidationType.CustomRule]: (value, isValid, validator, state) => {
         return isValid && typeof validator.value === 'function' && validator.value(value, state);
