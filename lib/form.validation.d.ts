@@ -1,4 +1,4 @@
-import { FormState, FormValueType, FormStateConstraint } from './form.hook';
+import { FormState, FormValueType, FormEntryConstraint } from './form.hook';
 export declare enum ValidationType {
     Require = "isRequired",
     MinLength = "minLength",
@@ -11,7 +11,7 @@ export declare enum ValidationType {
     MaxNumericalSymbols = "maxNumericalSymbols",
     CustomRule = "customRule"
 }
-export declare type CustomValidationRule<T extends FormValueType, S extends FormStateConstraint = any> = (value: T, state: FormState<S>) => boolean;
+export declare type CustomValidationRule<T extends FormValueType, S extends FormEntryConstraint = any> = (value: T, state: FormState<S>) => boolean;
 export declare type ValidationValue = FormValueType | CustomValidationRule<any, any>;
 export interface Validator {
     type: ValidationType;
