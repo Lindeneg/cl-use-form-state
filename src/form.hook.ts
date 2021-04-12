@@ -8,11 +8,16 @@ enum FormAction {
     SET_FORM = 'SET_FORM'
 }
 
-type FormElementConstraint = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+interface FormPayload extends Pick<FormEntryState<any>, 'value'> {
+    readonly id: string;
+    readonly state?: FormState<any>;
+}
+
+type FormElementConstraint = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLOptionElement;
 
 type ReducerAction = { type: FormAction; payload: FormPayload };
 
-type GetInputOptions<T extends FormValueType, S extends FormStateConstraint = any> = {
+type GetInputOptions<T extends FormValueType, S extends FormEntryConstraint = any> = {
     [key: string]: T | number | boolean | CustomValidationRule<T, S> | string[] | undefined;
     minLength?: number;
     maxLength?: number;
@@ -29,6 +34,8 @@ type GetInputOptions<T extends FormValueType, S extends FormStateConstraint = an
     connectFields?: string[];
 };
 
+/* This is the base for any input entry in a 'formState'. In other words
+   all input entries will have these properties available. */
 type FormEntryState<T extends FormValueType> = {
     value: T;
     isValid: boolean;
@@ -37,25 +44,42 @@ type FormEntryState<T extends FormValueType> = {
     readonly connectedFields: string[];
 };
 
-interface FormPayload extends Pick<FormEntryState<any>, 'value'> {
-    readonly id: string;
-    readonly state?: FormState<any>;
-}
+/* The type of object returned by useForm when initialized. */
+type UseForm<S extends FormEntryConstraint> = {
+    formState: FormState<S>;
+    onTouchHandler: React.FocusEventHandler<FormElementConstraint>;
+    onChangeHandler: React.ChangeEventHandler<FormElementConstraint>;
+    setFormState: (state: FormState<S>) => void;
+};
 
-export type FormStateConstraint = { [key: string]: FormValueType };
-
+// Supported input vales. Can be extended if need be.
 export type FormValueType = string | number | boolean | File;
 
-export type FormState<T extends FormStateConstraint> = {
+/* Property names and types of inputs, for example:
+   { password: string; age: number; isHappy: boolean; } */
+export type FormEntryConstraint = { [key: string]: FormValueType };
+
+/* This is the base for the form state and the type of object that is returned
+   by useForm().formState. Thus, 'formState' will always have properties
+   'inputs' and 'isValid' available while the inputs property, if non-empty, 
+   will have keys that yields an object of type FormEntryState */
+export type FormState<T extends FormEntryConstraint> = {
     inputs: { [K in keyof T]: FormEntryState<T[K]> };
     isValid: boolean;
 };
 
-export function getInput<T extends FormValueType, S extends FormStateConstraint = any>(
+/**
+ * Get an object of type FormEntryState by just defining the input type, initial value and options.
+ *
+ * @param initialValue - initial value of the input entry.
+ * @param options      - (optional) options for initial input state and validation
+ * @returns Object of type FormEntryState
+ */
+export function getInput<T extends FormValueType, S extends FormEntryConstraint = any>(
     initialValue: T,
     options?: GetInputOptions<T, S>
 ): FormEntryState<T> {
-    const parsedOptions: Pick<FormEntryState<T>, 'validators' | 'isValid' | 'isTouched' | 'connectedFields'> = {
+    const parsedOptions: Omit<FormEntryState<T>, 'value'> = {
         isValid: false,
         isTouched: false,
         validators: [],
@@ -77,11 +101,24 @@ export function getInput<T extends FormValueType, S extends FormStateConstraint 
     };
 }
 
+/**
+ * Handle all connected fields tied to a certain input. This is useful for the following reason:
+ *
+ * If we have input A and input B and input B is dependent upon input A. Then we'd like to be able to
+ * run the validation for input B each time the value of input A changes.
+ *
+ * @param state   - current FormState where the connected inputs can be found
+ * @param targetId - Id of the owning input (input A in the example above)
+ * @returns An object with entry keys and their updated object of type FormEntryState
+ */
 const handleConnectedFields = (state: FormState<any>, targetId: string): { [key: string]: FormEntryState<any> } => {
     try {
         const newInputState = { ...state.inputs };
+        // find connected fields from the targetId
         newInputState[targetId].connectedFields.forEach((connectedFieldId) => {
+            // if the connected field exists
             if (typeof newInputState[connectedFieldId] !== 'undefined') {
+                // then validate it given the specified state
                 newInputState[connectedFieldId] = {
                     ...newInputState[connectedFieldId],
                     isValid: validate(
@@ -99,10 +136,18 @@ const handleConnectedFields = (state: FormState<any>, targetId: string): { [key:
     }
 };
 
+/**
+ * Handle changes to FormState given an action associated with a payload.
+ *
+ * @param state Object with current FormState
+ * @param action FormAction and FormPayload to handle
+ * @returns Object with the updated FormState
+ */
 function formReducer<S extends FormState<any>>(state: S, action: ReducerAction): S {
     const pl = action.payload;
     switch (action.type) {
         case FormAction.INPUT_CHANGE:
+            // copy the current state, update the entry with the specified payload Id and validate it.
             const newState: S = {
                 ...state,
                 inputs: {
@@ -114,14 +159,17 @@ function formReducer<S extends FormState<any>>(state: S, action: ReducerAction):
                     }
                 }
             };
+            // copy the inputs and validate connected fields given the now updated state.
             newState.inputs = {
                 ...newState.inputs,
                 ...handleConnectedFields({ ...newState }, pl.id)
             };
+            // validate the entire form, if a single key fails, the whole form becomes invalid.
             let isValid: boolean = true;
             for (const key in newState.inputs) {
                 isValid = isValid && newState.inputs[key].isValid;
             }
+            // return the updated FormState
             return {
                 ...newState,
                 inputs: {
@@ -151,14 +199,14 @@ function formReducer<S extends FormState<any>>(state: S, action: ReducerAction):
     }
 }
 
-function useFormState<S extends FormStateConstraint>(
-    initialState: FormState<S>
-): {
-    formState: FormState<S>;
-    onTouchHandler: React.FocusEventHandler<FormElementConstraint>;
-    onChangeHandler: React.ChangeEventHandler<FormElementConstraint>;
-    setFormState: (state: FormState<S>) => void;
-} {
+/**
+ * React hook for managing the state of a form and its associated inputs.
+ *
+ * @param initialState - Object with initial FormState
+
+ * @returns Object of UseForm type with specified properties and types.
+ */
+function useForm<S extends FormEntryConstraint>(initialState: FormState<S>): UseForm<S> {
     const [formState, dispatch] = useReducer<Reducer<FormState<S>, ReducerAction>>(formReducer, {
         ...initialState
     });
@@ -184,4 +232,4 @@ function useFormState<S extends FormStateConstraint>(
     return { formState, onChangeHandler, onTouchHandler, setFormState };
 }
 
-export default useFormState;
+export default useForm;

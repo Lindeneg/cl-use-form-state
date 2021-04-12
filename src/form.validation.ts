@@ -1,5 +1,7 @@
-import { FormState, FormValueType, FormStateConstraint } from './form.hook';
+import { FormState, FormValueType, FormEntryConstraint } from './form.hook';
 
+/* Predefined validation options. However, a custom rule, which takes a function, can be created
+   and thus any validation rule that is desired, can be created. */
 export enum ValidationType {
     Require = 'isRequired',
     MinLength = 'minLength',
@@ -13,7 +15,10 @@ export enum ValidationType {
     CustomRule = 'customRule'
 }
 
-export type CustomValidationRule<T extends FormValueType, S extends FormStateConstraint = any> = (
+/* Function that is tied to a custom rule. Must return a boolean and will always receive two arguments: 
+   value: current value of the input field where this custom rule is tied 
+   state: the most updated state of the entire form. */
+export type CustomValidationRule<T extends FormValueType, S extends FormEntryConstraint = any> = (
     value: T,
     state: FormState<S>
 ) => boolean;
