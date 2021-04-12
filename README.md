@@ -1,4 +1,4 @@
-still in development
+simple documentation to come
 
 ###### install
 
