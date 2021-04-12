@@ -1,6 +1,5 @@
-import useForm from './form.hook';
+export { default as default, getInput } from './form.hook';
 
-export { getInput } from './form.hook';
 export type { FormState, FormValueType } from './form.hook';
 export type {
     ValidationType,
@@ -9,5 +8,3 @@ export type {
     ValidationFunc,
     Validator
 } from './form.validation';
-
-export default useForm;
