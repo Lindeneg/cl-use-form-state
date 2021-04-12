@@ -211,14 +211,31 @@ function useForm<S extends FormEntryConstraint>(initialState: FormState<S>): Use
         ...initialState
     });
 
+    /**
+     * Overwrite existing FormState by setting a new one.
+     *
+     * @param state Object with the new FormState
+     */
     const setFormState = useCallback((state: FormState<S>): void => {
         dispatch({ type: FormAction.SET_FORM, payload: { state, value: '', id: '' } });
     }, []);
 
+    /**
+     * Handles touch events. Can be used with prop 'onBlur', for example:
+     *
+     * \<input onBlur={onTouchHandler} /\>
+     *
+     */
     const onTouchHandler: React.FocusEventHandler<FormElementConstraint> = useCallback((event) => {
         dispatch({ type: FormAction.INPUT_TOUCH, payload: { id: event.target.id, value: '' } });
     }, []);
 
+    /**
+     * Handles change events. Can be used with prop 'onChange', for example:
+     *
+     * \<input onChange={onChangeHandler} /\>
+     *
+     */
     const onChangeHandler: React.ChangeEventHandler<FormElementConstraint> = useCallback((event) => {
         dispatch({
             type: FormAction.INPUT_CHANGE,
