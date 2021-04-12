@@ -1,5 +1,5 @@
-import { FormState, FormValueType, getInput } from '../form.hook';
-import { validate, getValidator, ValidationType, Validator, ValidationValue } from '../form.validation';
+import { FormState, FormValueType, getInput } from '../src/form.hook';
+import { validate, getValidator, ValidationType, Validator, ValidationValue } from '../src/form.validation';
 
 export type TestInputState = {
     age: number;

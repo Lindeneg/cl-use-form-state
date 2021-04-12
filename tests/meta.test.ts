@@ -1,6 +1,6 @@
 import { getValidationResult } from './test-util';
-import { ValidationType } from '../form.validation';
-import { FormState } from '../form.hook';
+import { ValidationType } from '../src/form.validation';
+import { FormState } from '../src/form.hook';
 
 test('can getResult create correct validation result', () => {
     const notValidWithOption = getValidationResult('', '', null, [ValidationType.Require, true]);

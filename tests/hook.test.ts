@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 
-import useForm, { getInput } from '../form.hook';
-import { validate } from '../form.validation';
+import useForm, { getInput } from '../src/form.hook';
+import { validate } from '../src/form.validation';
 import { TestInputState, getEmptyState, getInitialState, getConfirmedState } from './test-util';
 
 test('can get empty input correctly initialized', () => {

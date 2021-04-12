@@ -16,6 +16,5 @@
         "declarationDir": "lib",
         "jsx": "react"
     },
-    "include": ["src"],
-    "exclude": ["src/tests"]
+    "include": ["src"]
 }

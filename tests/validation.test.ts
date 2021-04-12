@@ -1,5 +1,5 @@
-import { FormState } from '../form.hook';
-import { ValidationType, count, countNumbers, countUpperCase } from '../form.validation';
+import { FormState } from '../src/form.hook';
+import { ValidationType, count, countNumbers, countUpperCase } from '../src/form.validation';
 import { getEmptyState, getValidationResult } from './test-util';
 
 test('can handle isRequired validation', () => {
