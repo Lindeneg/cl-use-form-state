@@ -44,7 +44,6 @@
         "react-hooks-testing-library": "^0.6.0",
         "react-test-renderer": "^17.0.2",
         "ts-node": "^9.1.1",
-        "typescript": "^4.2.3",
-        "webpack": "^5.30.0"
+        "typescript": "^4.2.3"
     }
 }

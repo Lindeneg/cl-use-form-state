@@ -35,10 +35,10 @@ export declare type FormState<T extends FormStateConstraint> = {
     isValid: boolean;
 };
 export declare function getInput<T extends FormValueType, S extends FormStateConstraint = any>(initialValue: T, options?: GetInputOptions<T, S>): FormEntryState<T>;
-declare function useFormState<S extends FormStateConstraint, E extends FormElementConstraint = HTMLInputElement>(initialState: FormState<S>): {
+declare function useFormState<S extends FormStateConstraint>(initialState: FormState<S>): {
     formState: FormState<S>;
-    onTouchHandler: React.FocusEventHandler<E>;
-    onChangeHandler: React.ChangeEventHandler<E>;
+    onTouchHandler: React.FocusEventHandler<FormElementConstraint>;
+    onChangeHandler: React.ChangeEventHandler<FormElementConstraint>;
     setFormState: (state: FormState<S>) => void;
 };
 export default useFormState;

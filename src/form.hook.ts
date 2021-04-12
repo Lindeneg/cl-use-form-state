@@ -151,12 +151,12 @@ function formReducer<S extends FormState<any>>(state: S, action: ReducerAction):
     }
 }
 
-function useFormState<S extends FormStateConstraint, E extends FormElementConstraint = HTMLInputElement>(
+function useFormState<S extends FormStateConstraint>(
     initialState: FormState<S>
 ): {
     formState: FormState<S>;
-    onTouchHandler: React.FocusEventHandler<E>;
-    onChangeHandler: React.ChangeEventHandler<E>;
+    onTouchHandler: React.FocusEventHandler<FormElementConstraint>;
+    onChangeHandler: React.ChangeEventHandler<FormElementConstraint>;
     setFormState: (state: FormState<S>) => void;
 } {
     const [formState, dispatch] = useReducer<Reducer<FormState<S>, ReducerAction>>(formReducer, {
@@ -167,11 +167,11 @@ function useFormState<S extends FormStateConstraint, E extends FormElementConstr
         dispatch({ type: FormAction.SET_FORM, payload: { state, value: '', id: '' } });
     }, []);
 
-    const onTouchHandler: React.FocusEventHandler<E> = useCallback((event) => {
+    const onTouchHandler: React.FocusEventHandler<FormElementConstraint> = useCallback((event) => {
         dispatch({ type: FormAction.INPUT_TOUCH, payload: { id: event.target.id, value: '' } });
     }, []);
 
-    const onChangeHandler: React.ChangeEventHandler<E> = useCallback((event) => {
+    const onChangeHandler: React.ChangeEventHandler<FormElementConstraint> = useCallback((event) => {
         dispatch({
             type: FormAction.INPUT_CHANGE,
             payload: {
