@@ -253,10 +253,6 @@ function getState<S extends FormEntryConstraint>(initialState: FormState<S> | In
     return state;
 }
 
-function useForm<S extends FormEntryConstraint>(initialState: FormState<S>): UseForm<S>;
-
-function useForm<S extends FormEntryConstraint>(initialState: Inputs<S>): UseForm<S>;
-
 /**
  * React hook for managing the state of a form and its associated inputs.
  *
