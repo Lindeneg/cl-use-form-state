@@ -82,6 +82,12 @@ export declare type FormState<T extends FormEntryConstraint> = {
  * @returns Object of type FormEntryState
  */
 export declare function getInput<T extends FormValueType, S extends FormEntryConstraint = any>(initialValue: T, options?: GetInputOptions<T, S>): FormEntryState<T>;
-declare function useForm<S extends FormEntryConstraint>(initialState: FormState<S>): UseForm<S>;
-declare function useForm<S extends FormEntryConstraint>(initialState: Inputs<S>): UseForm<S>;
+/**
+ * React hook for managing the state of a form and its associated inputs.
+ *
+ * @param initialState - Object with initial FormState or initial Inputs
+
+ * @returns Object of UseForm type with specified properties and types.
+ */
+declare function useForm<S extends FormEntryConstraint>(initialState: FormState<S> | Inputs<S>): UseForm<S>;
 export default useForm;
