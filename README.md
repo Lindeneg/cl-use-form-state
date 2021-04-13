@@ -34,28 +34,39 @@ type Inputs = {
 
 const SomeComponent = (props) => {
     const { formState, onChangeHandler, onTouchHandler, setFormState } = useForm<Inputs>({
-        inputs: {
-            age: getInput<number>(17, { minValue: 18, isValid: false }),
-            username: getInput<string>('', { minLength: 5, maxLength: 12, maxNumericalSymbols: 0 }),
-            password: getInput<string>('', {
-                minLength: 8,
-                maxLength: 20,
-                minNumericalSymbols: 1,
-                minUppercaseCharacters: 1
-            })
-        },
-        isValid: false
+        age: getInput<number>(21, { minValue: 18, isValid: true }),
+        username: getInput<string>('', {
+            minLength: 5,
+            maxLength: 12,
+            maxNumericalSymbols: 0
+        }),
+        password: getInput<string>('', {
+            minLength: 8,
+            maxLength: 20,
+            minNumericalSymbols: 1,
+            minUppercaseCharacters: 1
+        })
     });
     // element ids must correspond to the correct property key in the formState.
     // So the input element for 'username' should have an Id with the value 'username'
     return (
         <>
-            <input id="username" type="text" onChange={onChangeHandler} onBlur={onTouchHandler} />
+            <input
+                id="username"
+                type="text"
+                onChange={onChangeHandler}
+                onBlur={onTouchHandler}
+            />
             <p>
                 {`Username isValid: ${formState.inputs.username.isValid} | isTouched: ${formState.inputs.username.isTouched}`}
             </p>
 
-            <input id="password" type="password" onChange={onChangeHandler} onBlur={onTouchHandler} />
+            <input
+                id="password"
+                type="password"
+                onChange={onChangeHandler}
+                onBlur={onTouchHandler}
+            />
             <p>
                 {`Password isValid: ${formState.inputs.password.isValid} | isTouched: ${formState.inputs.password.isTouched}`}
             </p>
@@ -68,56 +79,24 @@ const SomeComponent = (props) => {
                 value={formState.inputs.age.value}
             />
             <p>{`Age isValid: ${formState.inputs.age.isValid} | isTouched: ${formState.inputs.age.isTouched}`}</p>
+            </hr>
+            <p>{`Form isValid: ${formState.isValid.age.isValid}`}</p>
         </>
     );
 };
 ```
 
-useForm returns, among other things, an object called formState, which will always have the keys:
+`useForm({...}).formState` returns an object with the keys:
 
-`'inputs' | 'isValid'`
+`inputs | isValid`, where `isValid` is true if all form `inputs` are valid.
 
-where isValid is true if and only if all form inputs are valid.
+`formState.inputs` (when created by the `getInput` function) will always have the keys:
 
-formState.inputs will always have the keys:
-
-`'value' | 'isValid' | 'isTouched' | 'validators' | 'connectedFields'`
-
-Say I want to use the inputs defined in the above Inputs type, then the FormState can be created like so:
-
-```ts
-const formState: FormState<Inputs> = {
-    inputs: {
-        age: getInput<number>(17, { minValue: 18, isValid: false }),
-        username: getInput<string>('', { minLength: 5, maxLength: 12, maxNumericalSymbols: 0 }),
-        password: getInput<string>('', {
-            minLength: 8,
-            maxLength: 20,
-            minNumericalSymbols: 1,
-            minUppercaseCharacters: 1
-        })
-    },
-    isValid: false
-};
-```
-
-Thus, each entry of formState.inputs will always have the aforementioned keys, such as:
-
-```ts
-
-formState.inputs.age => {
-    value: 17,
-    isValid: false,
-    isTouched: false,
-    validators: [...],
-    connectedFields: []
-}
-
-```
+`value | isValid | isTouched | validators | connectedFields`
 
 ##### getInput Options
 
-getInput takes two arguments. An initial value and options for the created input.
+`getInput` takes two arguments. An initial value and options for the created input.
 
 The options are as follows:
 
@@ -142,48 +121,51 @@ type InputOptions = {
     customRule            ?: (value: InputValueType, state: FormState) => boolean;
 
     // connect fields
-    connectFields?: string[];
+    connectFields         ?: string[];
 };
 ```
 
 ##### customRule
 
-If none of the predefined rules are useful, then you can create your own. A customRule must be a function
-that takes two arguments, value and state. The value will always be the newest value of the associated
+If none of the predefined rules are useful, then you can create your own. A `customRule` must be a function
+that takes two arguments, `value` and `state`. The value will always be the newest value of the associated
 input field while the state always will be the newest state of the entire form.
 
-Lets say you have an input where you'd only want to support usernames that starts with C and ends with l:
+Lets say you have an input where you'd only want to support `username`s that starts with C, ends with l and has a maximum length of the current `age` value:
 
 ```ts
-const formState: FormState<Inputs> = {
-    inputs: {
-        age: getInput<number, Inputs>(17, { minValue: 18, isValid: false }),
-        username: getInput<string>('', {
-            minLength: 5,
-            maxLength: 12,
-            maxNumericalSymbols: 0,
-            customRule: (value, state) => {
-                return value.length > 0 && value[0] === 'C' && value[value.length - 1] === 'l';
-            }
-        }),
-        password: getInput<string>('', {
-            minLength: 8,
-            maxLength: 20,
-            minNumericalSymbols: 1,
-            minUppercaseCharacters: 1
-        })
-    },
-    isValid: false
-};
+const { formState } = useForm<Inputs>({
+    age: getInput<number, Inputs>(21, { minValue: 18, isValid: true }),
+    username: getInput<string, Inputs>('', {
+        minLength: 5,
+        maxNumericalSymbols: 0,
+        customRule: (value, state) => {
+            const trimmedValue = value.trim();
+            const length = trimmedValue.length;
+            return (
+                length > 0 &&
+                length <= state.inputs.age.value &&
+                trimmedValue[0] === 'C' &&
+                trimmedValue[length - 1] === 'l'
+            );
+        }
+    }),
+    password: getInput<string>('', {
+        minLength: 8,
+        maxLength: 20,
+        minNumericalSymbols: 1,
+        minUppercaseCharacters: 1
+    })
+});
 ```
 
 ##### connectFields
 
-If you have a field that is dependant upon another field, this can be specified in the connectFields InputOptions.
+If you have a field that is dependant upon another field, this can be specified in the `connectFields` option.
 
-As an example for a use-case, if you have a signup form with a 'password' input and a 'passwordConfirmation' input, then the 'passwordConfirmation' input is dependant upon the 'password' input value.
+Say you have a signup form with a `password` input and a `passwordConfirmation` input, then `passwordConfirmation` is dependant upon the `password` value.
 
-In other words, each time the value of 'password' changes, we'd like to re-run the validation for the 'passwordConfirmation' input.
+In other words, each time the value of `password` changes, the validation for `passwordConfirmation` should be re-run.
 
 Example:
 
@@ -194,22 +176,56 @@ type AuthInputs = {
     passwordConfirmation: string;
 };
 
-const formState: FormState<AuthInputs> = {
-    inputs: {
-        username: getInput<string>('', { minLength: 5, maxLength: 12, maxNumericalSymbols: 0 }),
-        password: getInput<string>('', {
-            minLength: 8,
-            maxLength: 20,
-            minNumericalSymbols: 1,
-            minUppercaseCharacters: 1,
-            // run validation for passwordConfirmation on each password value change
-            connectFields: ['passwordConfirmation']
-        }),
-        passwordConfirmation: getInput<string, AuthInputs>('', {
-            // verify password is valid and then check if passwordConfirmation and password are equal
-            customRule: (value, state) => state.inputs.password.isValid && value === state.inputs.password.value
-        })
-    },
-    isValid: false
-};
+const { formState } = useForm<AuthInputs>({
+    username: getInput<string>('', {
+        minLength: 5,
+        maxLength: 12,
+        maxNumericalSymbols: 0
+    }),
+    password: getInput<string>('', {
+        minLength: 8,
+        maxLength: 20,
+        minNumericalSymbols: 1,
+        minUppercaseCharacters: 1,
+        // run validation for passwordConfirmation on each password value change
+        connectFields: ['passwordConfirmation']
+    }),
+    passwordConfirmation: getInput<string, AuthInputs>('', {
+        // verify password is valid and then check if passwordConfirmation and password are equal
+        customRule: (value, state) =>
+            state.inputs.password.isValid && value === state.inputs.password.value
+    })
+});
+```
+
+Or in the `customRule` example, where the validation for `username` should run each time the `age` value changes:
+
+```ts
+const { formState } = useForm<Inputs>({
+    age: getInput<number, Inputs>(21, {
+        minValue: 18,
+        isValid: true,
+        connectFields: ['username']
+    }),
+    username: getInput<string, Inputs>('', {
+        minLength: 5,
+        maxNumericalSymbols: 0,
+        customRule: (value, state) => {
+            const trimmedValue = value.trim();
+            const length = trimmedValue.length;
+            return (
+                length > 0 &&
+                length <= state.inputs.age.value &&
+                trimmedValue[0] === 'C' &&
+                trimmedValue[length - 1] === 'l'
+            );
+        }
+    }),
+    password: getInput<string>('', {
+        minLength: 8,
+        maxLength: 20,
+        minNumericalSymbols: 1,
+        minUppercaseCharacters: 1
+    })
+});
 ```
