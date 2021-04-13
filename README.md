@@ -79,8 +79,8 @@ const SomeComponent = (props) => {
                 value={formState.inputs.age.value}
             />
             <p>{`Age isValid: ${formState.inputs.age.isValid} | isTouched: ${formState.inputs.age.isTouched}`}</p>
-            </hr>
-            <p>{`Form isValid: ${formState.isValid.age.isValid}`}</p>
+            <hr />
+            <p>{`Form isValid: ${formState.isValid}`}</p>
         </>
     );
 };
