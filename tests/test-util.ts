@@ -1,4 +1,4 @@
-import { FormState, FormValueType, getInput } from '../src/form.hook';
+import { FormState, FormValueType, Inputs, getInput } from '../src/form.hook';
 import { validate, getValidator, ValidationType, Validator, ValidationValue } from '../src/form.validation';
 
 export type TestInputState = {
@@ -9,6 +9,30 @@ export type TestInputState = {
 };
 
 export const getEmptyState = (): FormState<any> => ({ inputs: {}, isValid: false });
+
+export const getInitialInvalidInputs = (): Inputs<TestInputState> => ({
+    age: getInput<number>(25, { isValid: true, minValue: 18 }),
+    username: getInput<string>('', { minLength: 5, maxLength: 12, maxNumericalSymbols: 0 }),
+    password: getInput<string>('', {
+        minLength: 8,
+        maxLength: 20,
+        minNumericalSymbols: 1,
+        minUppercaseCharacters: 1,
+        connectFields: ['confirmPassword']
+    })
+});
+
+export const getInitialValidInputs = (): Inputs<TestInputState> => ({
+    age: getInput<number>(25, { isValid: true, minValue: 18 }),
+    username: getInput<string>('hello', { isValid: true, minLength: 5, maxLength: 12, maxNumericalSymbols: 0 }),
+    password: getInput<string>('helloT5', {
+        isValid: true,
+        minLength: 8,
+        maxLength: 20,
+        minNumericalSymbols: 1,
+        minUppercaseCharacters: 1
+    })
+});
 
 export const getInitialState = (): FormState<TestInputState> => ({
     inputs: {
@@ -38,6 +62,18 @@ export const getConfirmedState = (): FormState<TestInputState> => {
             })
         },
         isValid: state.isValid
+    };
+};
+
+export const getConfirmedInputs = (): Inputs<TestInputState> => {
+    const inputs = getInitialInvalidInputs();
+    return {
+        ...inputs,
+        confirmPassword: getInput<string, TestInputState>('', {
+            customRule: (value, state) => {
+                return state.inputs.password.isValid && state.inputs.password.value === value;
+            }
+        })
     };
 };
 

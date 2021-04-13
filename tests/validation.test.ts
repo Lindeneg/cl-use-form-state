@@ -1,11 +1,22 @@
-import { FormState } from '../src/form.hook';
-import { ValidationType, count, countNumbers, countUpperCase } from '../src/form.validation';
-import { getEmptyState, getValidationResult } from './test-util';
+import { FormState, getInput } from '../src/form.hook';
+import { ValidationType, count, countNumbers, countUpperCase, validateState } from '../src/form.validation';
+import { getEmptyState, getInitialState, getValidationResult } from './test-util';
 
-test('can handle isRequired validation', () => {
-    const [valid, invalid] = getValidationResult('hello there', '', null, [ValidationType.Require, true]);
-    expect(valid).toBe(true);
-    expect(invalid).toBe(false);
+test('can validate invalid state', () => {
+    const state = getInitialState();
+    state.isValid = true;
+    expect(validateState(state)).toBe(false);
+});
+
+test('can validate valid state', () => {
+    const state = {
+        inputs: {
+            age: getInput(25, { minValue: 18, maxValue: 30, isValid: true }),
+            name: getInput('john doe', { minLength: 5, maxLength: 12, maxNumericalSymbols: 0, isValid: true })
+        },
+        isValid: false
+    };
+    expect(validateState(state)).toBe(true);
 });
 
 test('can handle custom validation', () => {
@@ -32,6 +43,12 @@ test('can handle custom validation', () => {
         customRule
     ]);
 
+    expect(valid).toBe(true);
+    expect(invalid).toBe(false);
+});
+
+test('can handle isRequired validation', () => {
+    const [valid, invalid] = getValidationResult('hello there', '', null, [ValidationType.Require, true]);
     expect(valid).toBe(true);
     expect(invalid).toBe(false);
 });

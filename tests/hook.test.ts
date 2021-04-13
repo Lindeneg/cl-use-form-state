@@ -2,7 +2,15 @@ import { renderHook, act } from '@testing-library/react-hooks';
 
 import useForm, { getInput } from '../src/form.hook';
 import { validate } from '../src/form.validation';
-import { TestInputState, getEmptyState, getInitialState, getConfirmedState } from './test-util';
+import {
+    TestInputState,
+    getEmptyState,
+    getInitialState,
+    getConfirmedState,
+    getInitialInvalidInputs,
+    getInitialValidInputs,
+    getConfirmedInputs
+} from './test-util';
 
 test('can get empty input correctly initialized', () => {
     const input = getInput<string>('');
@@ -48,70 +56,82 @@ test('can handle invalid input options without throwing errors on validation', (
     expect(validate(input.value, input.validators, emptyState)).toBe(true);
 });
 
-test('can initialize useForm', () => {
-    const state = getInitialState();
-    const { result } = renderHook(() => useForm<TestInputState>(state));
+const handleInitialize = (state, description, isValid?) => {
+    test(description, () => {
+        const { result } = renderHook(() => useForm<TestInputState>(state));
 
-    expect(result.current.formState).toBeDefined();
-    expect(result.current.formState.inputs).toBeDefined();
-    expect(result.current.formState.isValid).toBe(false);
+        expect(result.current.formState).toBeDefined();
+        expect(result.current.formState.inputs).toBeDefined();
+        expect(result.current.formState.isValid).toBe(typeof isValid === 'undefined' ? false : isValid);
 
-    expect(Object.keys(result.current.formState)).toEqual(['inputs', 'isValid']);
-    expect(Object.keys(result.current.formState.inputs)).toEqual(['age', 'username', 'password']);
-});
-
-test('can handle overall form validity', () => {
-    const state = getInitialState();
-    const { result } = renderHook(() => useForm<TestInputState>(state));
-    const ageEl = document.createElement('input');
-    const usernameEl = document.createElement('input');
-    const passwordEl = document.createElement('input');
-    ageEl.id = 'age';
-    usernameEl.id = 'username';
-    passwordEl.id = 'password';
-
-    expect(result.current.formState.isValid).toBe(false);
-
-    usernameEl.value = 'lindeneg';
-    passwordEl.value = 'helloThere1';
-
-    act(() => {
-        //@ts-ignore
-        result.current.onChangeHandler({ target: usernameEl });
-        //@ts-ignore
-        result.current.onChangeHandler({ target: passwordEl });
+        expect(Object.keys(result.current.formState)).toEqual(['inputs', 'isValid']);
+        expect(Object.keys(result.current.formState.inputs)).toEqual(['age', 'username', 'password']);
     });
+};
 
-    expect(result.current.formState.isValid).toBe(true);
+handleInitialize(getInitialState(), 'can initialize useForm using initial state');
+handleInitialize(getInitialInvalidInputs(), 'can initialize useForm using initial inputs with invalid state');
+handleInitialize(getInitialValidInputs(), 'can initialize useForm using initial inputs with valid state', true);
 
-    ageEl.value = '17';
+const handleFormValidityChange = (state, description) => {
+    test(description, () => {
+        const { result } = renderHook(() => useForm<TestInputState>(state));
+        const ageEl = document.createElement('input');
+        const usernameEl = document.createElement('input');
+        const passwordEl = document.createElement('input');
+        ageEl.id = 'age';
+        usernameEl.id = 'username';
+        passwordEl.id = 'password';
 
-    act(() => {
-        //@ts-ignore
-        result.current.onChangeHandler({ target: ageEl });
+        expect(result.current.formState.isValid).toBe(false);
+
+        usernameEl.value = 'lindeneg';
+        passwordEl.value = 'helloThere1';
+
+        act(() => {
+            //@ts-ignore
+            result.current.onChangeHandler({ target: usernameEl });
+            //@ts-ignore
+            result.current.onChangeHandler({ target: passwordEl });
+        });
+
+        expect(result.current.formState.isValid).toBe(true);
+
+        ageEl.value = '17';
+
+        act(() => {
+            //@ts-ignore
+            result.current.onChangeHandler({ target: ageEl });
+        });
+
+        expect(result.current.formState.isValid).toBe(false);
     });
+};
 
-    expect(result.current.formState.isValid).toBe(false);
-});
+handleFormValidityChange(getInitialState(), 'can handle overall form validity with initial state');
+handleFormValidityChange(getInitialInvalidInputs(), 'can handle overall form validity with initial inputs');
 
-test('can handle touch change', () => {
-    const state = getInitialState();
+const handleTouchChange = (state, description) => {
+    test(description, () => {
+        const { result } = renderHook(() => useForm<TestInputState>(state));
+        const userEl = document.createElement('input');
+        userEl.id = 'username';
 
-    const { result } = renderHook(() => useForm<TestInputState>(state));
-    const userEl = document.createElement('input');
-    userEl.id = 'username';
+        expect(result.current.formState.inputs.username.isTouched).toBe(false);
 
-    expect(result.current.formState.inputs.username.isTouched).toBe(false);
+        act(() => {
+            //@ts-ignore
+            result.current.onTouchHandler({ target: userEl });
+        });
 
-    act(() => {
-        //@ts-ignore
-        result.current.onTouchHandler({ target: userEl });
+        expect(result.current.formState.inputs.username.isTouched).toBe(true);
     });
+};
 
-    expect(result.current.formState.inputs.username.isTouched).toBe(true);
-});
+handleTouchChange(getInitialState(), 'can handle touch change with initial state');
+handleTouchChange(getInitialInvalidInputs(), 'can handle touch change with initial inputs');
 
-test('can handle changes first test', () => {
+test('can handle changes with initial state', () => {
     const state = getInitialState();
 
     const { result } = renderHook(() => useForm<TestInputState>(state));
@@ -142,10 +162,10 @@ test('can handle changes first test', () => {
     expect(result.current.formState.inputs.username.isValid).toBe(false);
 });
 
-test('can handle changes second test', () => {
-    const state = getInitialState();
+test('can handle changes with initial inputs', () => {
+    const inputs = getInitialInvalidInputs();
 
-    const { result } = renderHook(() => useForm<TestInputState>(state));
+    const { result } = renderHook(() => useForm<TestInputState>(inputs));
     const passwordEl = document.createElement('input');
     passwordEl.value = 'hellothere';
     passwordEl.id = 'password';
@@ -173,7 +193,7 @@ test('can handle changes second test', () => {
     expect(result.current.formState.inputs.password.isValid).toBe(true);
 });
 
-test('can setForm', () => {
+test('can setForm with state', () => {
     const initialState = getInitialState();
     const newState = {
         ...initialState,
@@ -190,80 +210,113 @@ test('can setForm', () => {
     const { result } = renderHook(() => useForm<TestInputState>(initialState));
 
     expect(result.current.formState.inputs.confirmPassword).toBeUndefined();
+    expect(result.current.formState.inputs.username).toBeDefined();
+    expect(result.current.formState.inputs.password).toBeDefined();
 
     act(() => {
         result.current.setFormState(newState);
     });
 
     expect(result.current.formState.inputs.confirmPassword).toBeDefined();
+    expect(result.current.formState.inputs.username).toBeDefined();
+    expect(result.current.formState.inputs.password).toBeDefined();
 });
 
-test('can handle input connections', () => {
-    const state = getConfirmedState();
-    const { result } = renderHook(() => useForm<TestInputState>(state));
+test('can setForm with inputs', () => {
+    const initialInputs = getInitialInvalidInputs();
+    const newInputs = {
+        ...initialInputs,
+        confirmPassword: getInput<string, TestInputState>('', {
+            customRule: (value, state) => {
+                return state.inputs.password.isValid && state.inputs.password.value === value;
+            }
+        })
+    };
+    const { result } = renderHook(() => useForm<TestInputState>(initialInputs));
 
-    const passwordEl = document.createElement('input');
-    const passwordConfirmEl = document.createElement('input');
-
-    expect(result.current.formState.inputs.password.value).toBe('');
-    expect(result.current.formState.inputs.password.isValid).toBe(false);
-    expect(result.current.formState.inputs.confirmPassword.value).toBe('');
-    expect(result.current.formState.inputs.confirmPassword.isValid).toBe(false);
-
-    passwordEl.id = 'password';
-    passwordEl.value = 'hello there';
-    passwordConfirmEl.id = 'confirmPassword';
-    passwordConfirmEl.value = 'hello';
-
-    // origin invalid, connection invalid
-    act(() => {
-        //@ts-ignore
-        result.current.onChangeHandler({ target: passwordEl });
-        //@ts-ignore
-        result.current.onChangeHandler({ target: passwordConfirmEl });
-    });
-
-    expect(result.current.formState.inputs.password.value).toBe('hello there');
-    expect(result.current.formState.inputs.password.isValid).toBe(false);
-    expect(result.current.formState.inputs.confirmPassword.value).toBe('hello');
-    expect(result.current.formState.inputs.confirmPassword.isValid).toBe(false);
-
-    passwordEl.value = 'hello therE21';
-
-    // origin valid, connection invalid
-    act(() => {
-        //@ts-ignore
-        result.current.onChangeHandler({ target: passwordEl });
-    });
-
-    expect(result.current.formState.inputs.password.value).toBe('hello therE21');
-    expect(result.current.formState.inputs.password.isValid).toBe(true);
-    expect(result.current.formState.inputs.confirmPassword.value).toBe('hello');
-    expect(result.current.formState.inputs.confirmPassword.isValid).toBe(false);
-
-    passwordConfirmEl.value = 'hello therE21';
-
-    // origin valid, connection valid
-    act(() => {
-        //@ts-ignore
-        result.current.onChangeHandler({ target: passwordConfirmEl });
-    });
-
-    expect(result.current.formState.inputs.password.value).toBe('hello therE21');
-    expect(result.current.formState.inputs.password.isValid).toBe(true);
-    expect(result.current.formState.inputs.confirmPassword.value).toBe('hello therE21');
-    expect(result.current.formState.inputs.confirmPassword.isValid).toBe(true);
-
-    passwordEl.value = 'hello therE2';
+    expect(result.current.formState.inputs.confirmPassword).toBeUndefined();
+    expect(result.current.formState.inputs.username).toBeDefined();
+    expect(result.current.formState.inputs.password).toBeDefined();
 
     act(() => {
-        //@ts-ignore
-        result.current.onChangeHandler({ target: passwordEl });
+        result.current.setFormState(newInputs);
     });
 
-    // origin valid, connection invalid
-    expect(result.current.formState.inputs.password.value).toBe('hello therE2');
-    expect(result.current.formState.inputs.password.isValid).toBe(true);
-    expect(result.current.formState.inputs.confirmPassword.value).toBe('hello therE21');
-    expect(result.current.formState.inputs.confirmPassword.isValid).toBe(false);
+    expect(result.current.formState.inputs.confirmPassword).toBeDefined();
+    expect(result.current.formState.inputs.username).toBeDefined();
+    expect(result.current.formState.inputs.password).toBeDefined();
 });
+
+const handleInputConnections = (state, description) => {
+    test(description, () => {
+        const { result } = renderHook(() => useForm<TestInputState>(state));
+
+        const passwordEl = document.createElement('input');
+        const passwordConfirmEl = document.createElement('input');
+
+        expect(result.current.formState.inputs.password.value).toBe('');
+        expect(result.current.formState.inputs.password.isValid).toBe(false);
+        expect(result.current.formState.inputs.confirmPassword.value).toBe('');
+        expect(result.current.formState.inputs.confirmPassword.isValid).toBe(false);
+
+        passwordEl.id = 'password';
+        passwordEl.value = 'hello there';
+        passwordConfirmEl.id = 'confirmPassword';
+        passwordConfirmEl.value = 'hello';
+
+        // origin invalid, connection invalid
+        act(() => {
+            //@ts-ignore
+            result.current.onChangeHandler({ target: passwordEl });
+            //@ts-ignore
+            result.current.onChangeHandler({ target: passwordConfirmEl });
+        });
+
+        expect(result.current.formState.inputs.password.value).toBe('hello there');
+        expect(result.current.formState.inputs.password.isValid).toBe(false);
+        expect(result.current.formState.inputs.confirmPassword.value).toBe('hello');
+        expect(result.current.formState.inputs.confirmPassword.isValid).toBe(false);
+
+        passwordEl.value = 'hello therE21';
+
+        // origin valid, connection invalid
+        act(() => {
+            //@ts-ignore
+            result.current.onChangeHandler({ target: passwordEl });
+        });
+
+        expect(result.current.formState.inputs.password.value).toBe('hello therE21');
+        expect(result.current.formState.inputs.password.isValid).toBe(true);
+        expect(result.current.formState.inputs.confirmPassword.value).toBe('hello');
+        expect(result.current.formState.inputs.confirmPassword.isValid).toBe(false);
+
+        passwordConfirmEl.value = 'hello therE21';
+
+        // origin valid, connection valid
+        act(() => {
+            //@ts-ignore
+            result.current.onChangeHandler({ target: passwordConfirmEl });
+        });
+
+        expect(result.current.formState.inputs.password.value).toBe('hello therE21');
+        expect(result.current.formState.inputs.password.isValid).toBe(true);
+        expect(result.current.formState.inputs.confirmPassword.value).toBe('hello therE21');
+        expect(result.current.formState.inputs.confirmPassword.isValid).toBe(true);
+
+        passwordEl.value = 'hello therE2';
+
+        // origin valid, connection invalid
+        act(() => {
+            //@ts-ignore
+            result.current.onChangeHandler({ target: passwordEl });
+        });
+
+        expect(result.current.formState.inputs.password.value).toBe('hello therE2');
+        expect(result.current.formState.inputs.password.isValid).toBe(true);
+        expect(result.current.formState.inputs.confirmPassword.value).toBe('hello therE21');
+        expect(result.current.formState.inputs.confirmPassword.isValid).toBe(false);
+    });
+};
+
+handleInputConnections(getConfirmedState(), 'can handle input connections with initial state');
+handleInputConnections(getConfirmedInputs(), 'can handle input connections with initial inputs');
