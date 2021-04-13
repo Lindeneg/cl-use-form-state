@@ -90,7 +90,7 @@ const SomeComponent = (props) => {
 
 `inputs | isValid`, where `isValid` is true if all form `inputs` are valid.
 
-`formState.inputs` (when created by the `getInput` function) will always have the keys:
+`formState.inputs.[INPUT_NAME]` (when created by the `getInput` function) will always have the keys:
 
 `value | isValid | isTouched | validators | connectedFields`
 
