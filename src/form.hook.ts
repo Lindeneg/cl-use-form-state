@@ -1,6 +1,13 @@
 import { useReducer, useCallback, Reducer } from 'react';
 
-import { Validator, ValidationType, CustomValidationRule, getValidator, validate } from './form.validation';
+import {
+    Validator,
+    ValidationType,
+    CustomValidationRule,
+    getValidator,
+    validate,
+    validateState
+} from './form.validation';
 
 enum FormAction {
     INPUT_CHANGE = 'INPUT_CHANGE',
@@ -45,12 +52,50 @@ type FormEntryState<T extends FormValueType> = {
 };
 
 /* The type of object returned by useForm when initialized. */
-type UseForm<S extends FormEntryConstraint> = {
+export type UseForm<S extends FormEntryConstraint> = {
+    /**
+     * formState' will always have properties 'inputs' and 'isValid'
+     * available while the 'inputs' property, if non-empty, will
+     * have keys that yields an object of type FormEntryState
+     */
     formState: FormState<S>;
+
+    /**
+     * Handles touch events. Can be used with prop 'onBlur', for example:
+     *
+     * \<input onBlur={onTouchHandler} /\>
+     *
+     */
     onTouchHandler: React.FocusEventHandler<FormElementConstraint>;
+
+    /**
+     * Handles change events. Can be used with prop 'onChange', for example:
+     *
+     * \<input onChange={onChangeHandler} /\>
+     *
+     */
     onChangeHandler: React.ChangeEventHandler<FormElementConstraint>;
-    setFormState: (state: FormState<S>) => void;
+
+    /**
+     * Overwrite existing inputs by setting new ones:
+     *
+     * setFormState({
+     *     ...newInputs
+     * })
+     *
+     * Or add to current inputs:
+     *
+     * setFormState({
+     *     ...formState.inputs,
+     *     ...newInputs
+     * })
+     *
+     * @param state Object with the new FormState
+     */
+    setFormState: (state: FormState<S> | Inputs<S>) => void;
 };
+
+export type Inputs<T extends FormEntryConstraint> = { [K in keyof T]: FormEntryState<T[K]> };
 
 // Supported input vales. Can be extended if need be.
 export type FormValueType = string | number | boolean | File;
@@ -59,12 +104,8 @@ export type FormValueType = string | number | boolean | File;
    { password: string; age: number; isHappy: boolean; } */
 export type FormEntryConstraint = { [key: string]: FormValueType };
 
-/* This is the base for the form state and the type of object that is returned
-   by useForm().formState. Thus, 'formState' will always have properties
-   'inputs' and 'isValid' available while the inputs property, if non-empty, 
-   will have keys that yields an object of type FormEntryState */
 export type FormState<T extends FormEntryConstraint> = {
-    inputs: { [K in keyof T]: FormEntryState<T[K]> };
+    inputs: Inputs<T>;
     isValid: boolean;
 };
 
@@ -162,20 +203,15 @@ function formReducer<S extends FormState<any>>(state: S, action: ReducerAction):
             // copy the inputs and validate connected fields given the now updated state.
             newState.inputs = {
                 ...newState.inputs,
-                ...handleConnectedFields({ ...newState }, pl.id)
+                ...handleConnectedFields(newState, pl.id)
             };
-            // validate the entire form, if a single key fails, the whole form becomes invalid.
-            let isValid: boolean = true;
-            for (const key in newState.inputs) {
-                isValid = isValid && newState.inputs[key].isValid;
-            }
             // return the updated FormState
             return {
                 ...newState,
                 inputs: {
                     ...newState.inputs
                 },
-                isValid
+                isValid: validateState(newState)
             };
         case FormAction.INPUT_TOUCH:
             return {
@@ -199,43 +235,48 @@ function formReducer<S extends FormState<any>>(state: S, action: ReducerAction):
     }
 }
 
+function getState<S extends FormEntryConstraint>(initialState: FormState<S> | Inputs<S>): FormState<S> {
+    let state: FormState<S>;
+    if (
+        Object.keys(initialState).length === 2 &&
+        typeof initialState.inputs !== 'undefined' &&
+        typeof initialState.isValid !== 'undefined'
+    ) {
+        state = { ...(initialState as FormState<S>) };
+    } else {
+        state = {
+            inputs: { ...(initialState as Inputs<S>) },
+            isValid: false
+        };
+        state.isValid = validateState(state);
+    }
+    return state;
+}
+
+function useForm<S extends FormEntryConstraint>(initialState: FormState<S>): UseForm<S>;
+
+function useForm<S extends FormEntryConstraint>(initialState: Inputs<S>): UseForm<S>;
+
 /**
  * React hook for managing the state of a form and its associated inputs.
  *
- * @param initialState - Object with initial FormState
+ * @param initialState - Object with initial FormState or initial Inputs
 
  * @returns Object of UseForm type with specified properties and types.
  */
-function useForm<S extends FormEntryConstraint>(initialState: FormState<S>): UseForm<S> {
+function useForm<S extends FormEntryConstraint>(initialState: FormState<S> | Inputs<S>): UseForm<S> {
     const [formState, dispatch] = useReducer<Reducer<FormState<S>, ReducerAction>>(formReducer, {
-        ...initialState
+        ...getState(initialState)
     });
 
-    /**
-     * Overwrite existing FormState by setting a new one.
-     *
-     * @param state Object with the new FormState
-     */
-    const setFormState = useCallback((state: FormState<S>): void => {
-        dispatch({ type: FormAction.SET_FORM, payload: { state, value: '', id: '' } });
+    const setFormState = useCallback((state: FormState<S> | Inputs<S>): void => {
+        dispatch({ type: FormAction.SET_FORM, payload: { state: { ...getState(state) }, value: '', id: '' } });
     }, []);
 
-    /**
-     * Handles touch events. Can be used with prop 'onBlur', for example:
-     *
-     * \<input onBlur={onTouchHandler} /\>
-     *
-     */
     const onTouchHandler: React.FocusEventHandler<FormElementConstraint> = useCallback((event) => {
         dispatch({ type: FormAction.INPUT_TOUCH, payload: { id: event.target.id, value: '' } });
     }, []);
 
-    /**
-     * Handles change events. Can be used with prop 'onChange', for example:
-     *
-     * \<input onChange={onChangeHandler} /\>
-     *
-     */
     const onChangeHandler: React.ChangeEventHandler<FormElementConstraint> = useCallback((event) => {
         dispatch({
             type: FormAction.INPUT_CHANGE,
