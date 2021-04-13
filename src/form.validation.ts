@@ -95,6 +95,14 @@ const validationFunc: { [key: string]: ValidationFunc } = {
     }
 };
 
+export const validateState = (state: FormState<any>): boolean => {
+    let isValid: boolean = true;
+    for (const key in state.inputs) {
+        isValid = isValid && state.inputs[key].isValid;
+    }
+    return isValid;
+};
+
 export const getValidator = (type: ValidationType, value: ValidationValue): Validator => ({ type, value });
 
 export const validate = (value: FormValueType, validators: Validator[], state: FormState<any>): boolean => {
