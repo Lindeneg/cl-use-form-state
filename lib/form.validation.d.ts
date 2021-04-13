@@ -21,5 +21,6 @@ export declare type ValidationFunc = (value: FormValueType, isValid: boolean, va
 export declare const count: (target: string, callback: (entry: string) => boolean) => number;
 export declare const countUpperCase: (target: string) => number;
 export declare const countNumbers: (target: string) => number;
+export declare const validateState: (state: FormState<any>) => boolean;
 export declare const getValidator: (type: ValidationType, value: ValidationValue) => Validator;
 export declare const validate: (value: FormValueType, validators: Validator[], state: FormState<any>) => boolean;

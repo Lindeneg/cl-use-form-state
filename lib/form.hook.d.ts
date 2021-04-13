@@ -24,20 +24,54 @@ declare type FormEntryState<T extends FormValueType> = {
     readonly validators: Validator[];
     readonly connectedFields: string[];
 };
-declare type UseForm<S extends FormEntryConstraint> = {
+export declare type UseForm<S extends FormEntryConstraint> = {
+    /**
+     * formState' will always have properties 'inputs' and 'isValid'
+     * available while the 'inputs' property, if non-empty, will
+     * have keys that yields an object of type FormEntryState
+     */
     formState: FormState<S>;
+    /**
+     * Handles touch events. Can be used with prop 'onBlur', for example:
+     *
+     * \<input onBlur={onTouchHandler} /\>
+     *
+     */
     onTouchHandler: React.FocusEventHandler<FormElementConstraint>;
+    /**
+     * Handles change events. Can be used with prop 'onChange', for example:
+     *
+     * \<input onChange={onChangeHandler} /\>
+     *
+     */
     onChangeHandler: React.ChangeEventHandler<FormElementConstraint>;
-    setFormState: (state: FormState<S>) => void;
+    /**
+     * Overwrite existing inputs by setting new ones:
+     *
+     * setFormState({
+     *     ...newInputs
+     * })
+     *
+     * Or add to current inputs:
+     *
+     * setFormState({
+     *     ...formState.inputs,
+     *     ...newInputs
+     * })
+     *
+     * @param state Object with the new FormState
+     */
+    setFormState: (state: FormState<S> | Inputs<S>) => void;
+};
+export declare type Inputs<T extends FormEntryConstraint> = {
+    [K in keyof T]: FormEntryState<T[K]>;
 };
 export declare type FormValueType = string | number | boolean | File;
 export declare type FormEntryConstraint = {
     [key: string]: FormValueType;
 };
 export declare type FormState<T extends FormEntryConstraint> = {
-    inputs: {
-        [K in keyof T]: FormEntryState<T[K]>;
-    };
+    inputs: Inputs<T>;
     isValid: boolean;
 };
 /**
@@ -48,12 +82,6 @@ export declare type FormState<T extends FormEntryConstraint> = {
  * @returns Object of type FormEntryState
  */
 export declare function getInput<T extends FormValueType, S extends FormEntryConstraint = any>(initialValue: T, options?: GetInputOptions<T, S>): FormEntryState<T>;
-/**
- * React hook for managing the state of a form and its associated inputs.
- *
- * @param initialState - Object with initial FormState
-
- * @returns Object of UseForm type with specified properties and types.
- */
 declare function useForm<S extends FormEntryConstraint>(initialState: FormState<S>): UseForm<S>;
+declare function useForm<S extends FormEntryConstraint>(initialState: Inputs<S>): UseForm<S>;
 export default useForm;
