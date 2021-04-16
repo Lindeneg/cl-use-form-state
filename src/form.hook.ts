@@ -188,42 +188,56 @@ function formReducer<S extends FormState<any>>(state: S, action: ReducerAction):
     const pl = action.payload;
     switch (action.type) {
         case FormAction.INPUT_CHANGE:
-            // copy the current state, update the entry with the specified payload Id and validate it.
-            const newState: S = {
-                ...state,
-                inputs: {
-                    ...state.inputs,
-                    [pl.id]: {
-                        ...state.inputs[pl.id],
-                        value: pl.value,
-                        isValid: validate(pl.value, state.inputs[pl.id].validators, state)
+            try {
+                // copy the current state, update the entry with the specified payload Id and validate it.
+                const newState: S = {
+                    ...state,
+                    inputs: {
+                        ...state.inputs,
+                        [pl.id]: {
+                            ...state.inputs[pl.id],
+                            value: pl.value,
+                            isValid: validate(pl.value, state.inputs[pl.id].validators, state)
+                        }
                     }
-                }
-            };
-            // copy the inputs and validate connected fields given the now updated state.
-            newState.inputs = {
-                ...newState.inputs,
-                ...handleConnectedFields(newState, pl.id)
-            };
-            // return the updated FormState
-            return {
-                ...newState,
-                inputs: {
-                    ...newState.inputs
-                },
-                isValid: validateState(newState)
-            };
+                };
+                // copy the inputs and validate connected fields given the now updated state.
+                newState.inputs = {
+                    ...newState.inputs,
+                    ...handleConnectedFields(newState, pl.id)
+                };
+                // return the updated FormState
+                return {
+                    ...newState,
+                    inputs: {
+                        ...newState.inputs
+                    },
+                    isValid: validateState(newState)
+                };
+            } catch (err) {
+                console.error(
+                    `use-form-state cannot recognize input-id '${pl.id}'. Please make sure that all form input names are tied to a form element, such as <input id='{ID}' />.`
+                );
+                break;
+            }
         case FormAction.INPUT_TOUCH:
-            return {
-                ...state,
-                inputs: {
-                    ...state.inputs,
-                    [pl.id]: {
-                        ...state.inputs[pl.id],
-                        isTouched: true
+            try {
+                return {
+                    ...state,
+                    inputs: {
+                        ...state.inputs,
+                        [pl.id]: {
+                            ...state.inputs[pl.id],
+                            isTouched: true
+                        }
                     }
-                }
-            };
+                };
+            } catch (err) {
+                console.error(
+                    `use-form-state cannot recognize input-id '${pl.id}'. Please make sure that all form input names are tied to a form element, such as <input id='{ID}' />.`
+                );
+                break;
+            }
         case FormAction.SET_FORM:
             if (typeof pl.state !== 'undefined') {
                 return { ...(pl.state as S) };
@@ -231,8 +245,9 @@ function formReducer<S extends FormState<any>>(state: S, action: ReducerAction):
                 return state;
             }
         default:
-            return state;
+            break;
     }
+    return state;
 }
 
 function getState<S extends FormEntryConstraint>(initialState: FormState<S> | Inputs<S>): FormState<S> {

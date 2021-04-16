@@ -111,6 +111,25 @@ const handleFormValidityChange = (state, description) => {
 handleFormValidityChange(getInitialState(), 'can handle overall form validity with initial state');
 handleFormValidityChange(getInitialInvalidInputs(), 'can handle overall form validity with initial inputs');
 
+test('can handle invalid referenced variables', () => {
+    const { result } = renderHook(() => useForm<TestInputState>(getInitialState()));
+    const usernameEl = document.createElement('input');
+    usernameEl.id = 'not-username';
+
+    expect(result.current.formState.inputs.username.value).toBe('');
+    expect(result.current.formState.inputs.username.isValid).toBe(false);
+
+    usernameEl.value = 'lindeneg';
+
+    act(() => {
+        //@ts-ignore
+        result.current.onChangeHandler({ target: usernameEl });
+    });
+
+    expect(result.current.formState.inputs.username.value).toBe('');
+    expect(result.current.formState.inputs.username.isValid).toBe(false);
+});
+
 const handleTouchChange = (state, description) => {
     test(description, () => {
         const { result } = renderHook(() => useForm<TestInputState>(state));
