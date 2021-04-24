@@ -1,4 +1,4 @@
-## use-form-state
+## cl-use-form-state
 
 react form state and validation hook
 
@@ -6,18 +6,9 @@ react form state and validation hook
 
 _If anyone should actually use this, please let me know if you have any suggestions, improvements or ideas. It's all about learning and improving!_
 
-###### use lib
+###### Install
 
 `$ yarn add cl-use-form-state`
-
-###### clone repository
-
-```
-$ git clone https://github.com/lindeneg/use-form-state.git
-$ cd use-form-state && yarn install
-// run some tests
-$ yarn test
-```
 
 ---
 
