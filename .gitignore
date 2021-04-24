@@ -20,7 +20,6 @@
 .env.production.local
 paw.ini
 
-/lib
 /example
 npm-debug.log*
 yarn-debug.log*
