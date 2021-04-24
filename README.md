@@ -8,7 +8,7 @@ _If anyone should actually use this, please let me know if you have any suggesti
 
 ###### use lib
 
-`$ yarn add https://github.com/lindeneg/use-form-state.git`
+`$ yarn add cl-use-form-state`
 
 ###### clone repository
 
@@ -24,7 +24,7 @@ $ yarn test
 ##### Usage
 
 ```tsx
-import useForm, { getInput } from 'use-form-state';
+import useForm, { getInput } from 'cl-use-form-state';
 
 type Inputs = {
     age: number;
@@ -51,22 +51,12 @@ const SomeComponent = (props) => {
     // So the input element for 'username' should have an Id with the value 'username'
     return (
         <>
-            <input
-                id="username"
-                type="text"
-                onChange={onChangeHandler}
-                onBlur={onTouchHandler}
-            />
+            <input id="username" type="text" onChange={onChangeHandler} onBlur={onTouchHandler} />
             <p>
                 {`Username isValid: ${formState.inputs.username.isValid} | isTouched: ${formState.inputs.username.isTouched}`}
             </p>
 
-            <input
-                id="password"
-                type="password"
-                onChange={onChangeHandler}
-                onBlur={onTouchHandler}
-            />
+            <input id="password" type="password" onChange={onChangeHandler} onBlur={onTouchHandler} />
             <p>
                 {`Password isValid: ${formState.inputs.password.isValid} | isTouched: ${formState.inputs.password.isTouched}`}
             </p>
@@ -103,25 +93,25 @@ The options are as follows:
 ```ts
 type InputOptions = {
     // initial state
-    isValid               ?: boolean; // default: false
-    isTouched             ?: boolean; // default: false
+    isValid?: boolean; // default: false
+    isTouched?: boolean; // default: false
 
     // predefined validation rules
-    minLength             ?: number;
-    maxLength             ?: number;
-    minValue              ?: number;
-    maxValue              ?: number;
+    minLength?: number;
+    maxLength?: number;
+    minValue?: number;
+    maxValue?: number;
     minUppercaseCharacters?: number;
     maxUppercaseCharacters?: number;
-    minNumericalSymbols   ?: number;
-    maxNumericalSymbols   ?: number;
-    isRequired            ?: boolean;
+    minNumericalSymbols?: number;
+    maxNumericalSymbols?: number;
+    isRequired?: boolean;
 
     // custom validation rule:
-    customRule            ?: (value: InputValueType, state: FormState) => boolean;
+    customRule?: (value: InputValueType, state: FormState) => boolean;
 
     // connect fields
-    connectFields         ?: string[];
+    connectFields?: string[];
 };
 ```
 
@@ -192,8 +182,7 @@ const { formState } = useForm<AuthInputs>({
     }),
     passwordConfirmation: getInput<string, AuthInputs>('', {
         // verify password is valid and then check if passwordConfirmation and password are equal
-        customRule: (value, state) =>
-            state.inputs.password.isValid && value === state.inputs.password.value
+        customRule: (value, state) => state.inputs.password.isValid && value === state.inputs.password.value
     })
 });
 ```
