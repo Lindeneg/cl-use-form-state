@@ -1,7 +1,7 @@
 {
     "name": "cl-use-form-state",
     "description": "Small utility to keep track of form state in React.",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "author": {
         "name": "Christian Lindeneg",
         "email": "hi@lindeneg.org",
