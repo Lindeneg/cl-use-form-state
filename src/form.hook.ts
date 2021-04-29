@@ -24,7 +24,17 @@ type FormElementConstraint = HTMLInputElement | HTMLTextAreaElement | HTMLSelect
 
 type ReducerAction = { type: FormAction; payload: FormPayload };
 
-type GetInputOptions<T extends FormValueType, S extends FormEntryConstraint = any> = {
+/* This is the base for any input entry in a 'formState'. In other words
+   all input entries will have these properties available. */
+type FormEntryState<T extends FormValueType> = {
+    value: T;
+    isValid: boolean;
+    isTouched: boolean;
+    readonly validators: Validator[];
+    readonly connectedFields: string[];
+};
+
+export type GetInputOptions<T extends FormValueType, S extends FormEntryConstraint = any> = {
     [key: string]: T | number | boolean | CustomValidationRule<T, S> | string[] | undefined;
     minLength?: number;
     maxLength?: number;
@@ -39,16 +49,6 @@ type GetInputOptions<T extends FormValueType, S extends FormEntryConstraint = an
     isTouched?: boolean;
     customRule?: CustomValidationRule<T, S>;
     connectFields?: string[];
-};
-
-/* This is the base for any input entry in a 'formState'. In other words
-   all input entries will have these properties available. */
-type FormEntryState<T extends FormValueType> = {
-    value: T;
-    isValid: boolean;
-    isTouched: boolean;
-    readonly validators: Validator[];
-    readonly connectedFields: string[];
 };
 
 /* The type of object returned by useForm when initialized. */
