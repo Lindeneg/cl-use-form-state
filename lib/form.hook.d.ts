@@ -1,7 +1,14 @@
 /// <reference types="react" />
 import { Validator, CustomValidationRule } from './form.validation';
 declare type FormElementConstraint = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLOptionElement;
-declare type GetInputOptions<T extends FormValueType, S extends FormEntryConstraint = any> = {
+declare type FormEntryState<T extends FormValueType> = {
+    value: T;
+    isValid: boolean;
+    isTouched: boolean;
+    readonly validators: Validator[];
+    readonly connectedFields: string[];
+};
+export declare type GetInputOptions<T extends FormValueType, S extends FormEntryConstraint = any> = {
     [key: string]: T | number | boolean | CustomValidationRule<T, S> | string[] | undefined;
     minLength?: number;
     maxLength?: number;
@@ -16,13 +23,6 @@ declare type GetInputOptions<T extends FormValueType, S extends FormEntryConstra
     isTouched?: boolean;
     customRule?: CustomValidationRule<T, S>;
     connectFields?: string[];
-};
-declare type FormEntryState<T extends FormValueType> = {
-    value: T;
-    isValid: boolean;
-    isTouched: boolean;
-    readonly validators: Validator[];
-    readonly connectedFields: string[];
 };
 export declare type UseForm<S extends FormEntryConstraint> = {
     /**
