@@ -92,7 +92,8 @@ export const getValidationResult = (
     validValue: FormValueType,
     invalidValue: FormValueType,
     state: FormState<FormEntryConstraint> | null,
-    ...validatorsTypes: Array<[ValidationType, ValidationValue]>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...validatorsTypes: Array<[ValidationType, ValidationValue<any, any>]>
 ): [boolean, boolean] => {
     const currentState = state !== null ? state : getEmptyState();
     const validators: Validator[] = validatorsTypes.map((e) => getValidator(e[0], e[1]));

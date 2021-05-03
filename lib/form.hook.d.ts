@@ -8,7 +8,7 @@ declare type FormEntryState<T extends FormValueType> = {
     readonly validators: Validator[];
     readonly connectedFields: string[];
 };
-export declare type GetInputOptions<T extends FormValueType, S extends FormEntryConstraint = any> = {
+export declare type GetInputOptions<T extends FormValueType, S extends FormEntryConstraint = Record<string, FormValueType>> = {
     [key: string]: T | number | boolean | CustomValidationRule<T, S> | string[] | undefined;
     minLength?: number;
     maxLength?: number;
@@ -81,7 +81,7 @@ export declare type FormState<T extends FormEntryConstraint> = {
  * @param options      - (optional) options for initial input state and validation
  * @returns Object of type FormEntryState
  */
-export declare function getInput<T extends FormValueType, S extends FormEntryConstraint = any>(initialValue: T, options?: GetInputOptions<T, S>): FormEntryState<T>;
+export declare function getInput<T extends FormValueType, S extends FormEntryConstraint = Record<string, FormValueType>>(initialValue: T, options?: GetInputOptions<T, S>): FormEntryState<T>;
 /**
  * React hook for managing the state of a form and its associated inputs.
  *

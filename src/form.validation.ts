@@ -18,16 +18,18 @@ export enum ValidationType {
 /* Function that is tied to a custom rule. Must return a boolean and will always receive two arguments: 
    value: current value of the input field where this custom rule is tied 
    state: the most updated state of the entire form. */
-export type CustomValidationRule<
-    T extends FormValueType,
-    S extends FormEntryConstraint = Record<string, FormValueType>
-> = (value: T, state: FormState<S>) => boolean;
+export type CustomValidationRule<T extends FormValueType, S extends FormEntryConstraint> = (
+    value: T,
+    state: FormState<S>
+) => boolean;
 
-export type ValidationValue = FormValueType | CustomValidationRule<FormValueType>;
+export type ValidationValue<T extends FormValueType, S extends FormEntryConstraint> =
+    | FormValueType
+    | CustomValidationRule<T, S>;
 
 export interface Validator {
     type: ValidationType;
-    value: ValidationValue;
+    value: ValidationValue<FormValueType, FormEntryConstraint>;
 }
 
 export type ValidationFunc = (
@@ -109,7 +111,10 @@ export const validateState = (state: FormState<FormEntryConstraint>): boolean =>
     return isValid;
 };
 
-export const getValidator = (type: ValidationType, value: ValidationValue): Validator => ({
+export const getValidator = (
+    type: ValidationType,
+    value: ValidationValue<FormValueType, FormEntryConstraint>
+): Validator => ({
     type,
     value
 });
