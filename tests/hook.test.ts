@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 
-import useForm, { getInput } from '../src/form.hook';
+import useForm, { FormState, getInput, Inputs } from '../src/form.hook';
 import { validate } from '../src/form.validation';
 import {
     TestInputState,
@@ -56,7 +56,11 @@ test('can handle invalid input options without throwing errors on validation', (
     expect(validate(input.value, input.validators, emptyState)).toBe(true);
 });
 
-const handleInitialize = (state, description, isValid?) => {
+const handleInitialize = (
+    state: FormState<TestInputState> | Inputs<TestInputState>,
+    description: string,
+    isValid?: boolean
+) => {
     test(description, () => {
         const { result } = renderHook(() => useForm<TestInputState>(state));
 
@@ -86,7 +90,10 @@ handleInitialize(
     true
 );
 
-const handleFormValidityChange = (state, description) => {
+const handleFormValidityChange = (
+    state: FormState<TestInputState> | Inputs<TestInputState>,
+    description: string
+) => {
     test(description, () => {
         const { result } = renderHook(() => useForm<TestInputState>(state));
         const ageEl = document.createElement('input');
@@ -150,7 +157,10 @@ test('can handle invalid referenced variables', () => {
     expect(result.current.formState.inputs.username.isValid).toBe(false);
 });
 
-const handleTouchChange = (state, description) => {
+const handleTouchChange = (
+    state: FormState<TestInputState> | Inputs<TestInputState>,
+    description: string
+) => {
     test(description, () => {
         const { result } = renderHook(() => useForm<TestInputState>(state));
         const userEl = document.createElement('input');
@@ -285,7 +295,10 @@ test('can setForm with inputs', () => {
     expect(result.current.formState.inputs.password).toBeDefined();
 });
 
-const handleInputConnections = (state, description) => {
+const handleInputConnections = (
+    state: FormState<TestInputState> | Inputs<TestInputState>,
+    description: string
+) => {
     test(description, () => {
         const { result } = renderHook(() => useForm<TestInputState>(state));
 
@@ -294,8 +307,8 @@ const handleInputConnections = (state, description) => {
 
         expect(result.current.formState.inputs.password.value).toBe('');
         expect(result.current.formState.inputs.password.isValid).toBe(false);
-        expect(result.current.formState.inputs.confirmPassword.value).toBe('');
-        expect(result.current.formState.inputs.confirmPassword.isValid).toBe(false);
+        expect(result.current.formState.inputs.confirmPassword?.value).toBe('');
+        expect(result.current.formState.inputs.confirmPassword?.isValid).toBe(false);
 
         passwordEl.id = 'password';
         passwordEl.value = 'hello there';
@@ -314,8 +327,8 @@ const handleInputConnections = (state, description) => {
 
         expect(result.current.formState.inputs.password.value).toBe('hello there');
         expect(result.current.formState.inputs.password.isValid).toBe(false);
-        expect(result.current.formState.inputs.confirmPassword.value).toBe('hello');
-        expect(result.current.formState.inputs.confirmPassword.isValid).toBe(false);
+        expect(result.current.formState.inputs.confirmPassword?.value).toBe('hello');
+        expect(result.current.formState.inputs.confirmPassword?.isValid).toBe(false);
 
         passwordEl.value = 'hello therE21';
 
@@ -328,8 +341,8 @@ const handleInputConnections = (state, description) => {
 
         expect(result.current.formState.inputs.password.value).toBe('hello therE21');
         expect(result.current.formState.inputs.password.isValid).toBe(true);
-        expect(result.current.formState.inputs.confirmPassword.value).toBe('hello');
-        expect(result.current.formState.inputs.confirmPassword.isValid).toBe(false);
+        expect(result.current.formState.inputs.confirmPassword?.value).toBe('hello');
+        expect(result.current.formState.inputs.confirmPassword?.isValid).toBe(false);
 
         passwordConfirmEl.value = 'hello therE21';
 
@@ -342,8 +355,8 @@ const handleInputConnections = (state, description) => {
 
         expect(result.current.formState.inputs.password.value).toBe('hello therE21');
         expect(result.current.formState.inputs.password.isValid).toBe(true);
-        expect(result.current.formState.inputs.confirmPassword.value).toBe('hello therE21');
-        expect(result.current.formState.inputs.confirmPassword.isValid).toBe(true);
+        expect(result.current.formState.inputs.confirmPassword?.value).toBe('hello therE21');
+        expect(result.current.formState.inputs.confirmPassword?.isValid).toBe(true);
 
         passwordEl.value = 'hello therE2';
 
@@ -356,8 +369,8 @@ const handleInputConnections = (state, description) => {
 
         expect(result.current.formState.inputs.password.value).toBe('hello therE2');
         expect(result.current.formState.inputs.password.isValid).toBe(true);
-        expect(result.current.formState.inputs.confirmPassword.value).toBe('hello therE21');
-        expect(result.current.formState.inputs.confirmPassword.isValid).toBe(false);
+        expect(result.current.formState.inputs.confirmPassword?.value).toBe('hello therE21');
+        expect(result.current.formState.inputs.confirmPassword?.isValid).toBe(false);
     });
 };
 

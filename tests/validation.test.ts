@@ -4,7 +4,8 @@ import {
     count,
     countNumbers,
     countUpperCase,
-    validateState
+    validateState,
+    CustomValidationRule
 } from '../src/form.validation';
 import { getEmptyState, getInitialState, getValidationResult } from './test-util';
 
@@ -32,7 +33,8 @@ test('can validate valid state', () => {
 
 test('can handle custom validation', () => {
     const emptyState = getEmptyState();
-    const state: FormState<{ someTestInput: string }> = {
+    type TestInputs = { someTestInput: string };
+    const state: FormState<TestInputs> = {
         ...emptyState,
         inputs: {
             ...emptyState.inputs,
@@ -46,7 +48,7 @@ test('can handle custom validation', () => {
         },
         isValid: false
     };
-    const customRule = (value, state) => {
+    const customRule: CustomValidationRule<string, TestInputs> = (value, state) => {
         return state.inputs.someTestInput.isValid && state.inputs.someTestInput.value === value;
     };
     const [valid, invalid] = getValidationResult('Kind of Blue', 'kind of blue', state, [
