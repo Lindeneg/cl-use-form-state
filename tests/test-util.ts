@@ -1,5 +1,11 @@
-import { FormState, FormValueType, Inputs, getInput } from '../src/form.hook';
-import { validate, getValidator, ValidationType, Validator, ValidationValue } from '../src/form.validation';
+import { FormState, FormValueType, Inputs, getInput, FormEntryConstraint } from '../src/form.hook';
+import {
+    validate,
+    getValidator,
+    ValidationType,
+    Validator,
+    ValidationValue
+} from '../src/form.validation';
 
 export type TestInputState = {
     age: number;
@@ -8,7 +14,7 @@ export type TestInputState = {
     confirmPassword?: string;
 };
 
-export const getEmptyState = (): FormState<any> => ({ inputs: {}, isValid: false });
+export const getEmptyState = (): FormState<FormEntryConstraint> => ({ inputs: {}, isValid: false });
 
 export const getInitialInvalidInputs = (): Inputs<TestInputState> => ({
     age: getInput<number>(25, { isValid: true, minValue: 18 }),
@@ -24,7 +30,12 @@ export const getInitialInvalidInputs = (): Inputs<TestInputState> => ({
 
 export const getInitialValidInputs = (): Inputs<TestInputState> => ({
     age: getInput<number>(25, { isValid: true, minValue: 18 }),
-    username: getInput<string>('hello', { isValid: true, minLength: 5, maxLength: 12, maxNumericalSymbols: 0 }),
+    username: getInput<string>('hello', {
+        isValid: true,
+        minLength: 5,
+        maxLength: 12,
+        maxNumericalSymbols: 0
+    }),
     password: getInput<string>('helloT5', {
         isValid: true,
         minLength: 8,
@@ -80,10 +91,13 @@ export const getConfirmedInputs = (): Inputs<TestInputState> => {
 export const getValidationResult = (
     validValue: FormValueType,
     invalidValue: FormValueType,
-    state: FormState<any> | null,
+    state: FormState<FormEntryConstraint> | null,
     ...validatorsTypes: Array<[ValidationType, ValidationValue]>
 ): [boolean, boolean] => {
     const currentState = state !== null ? state : getEmptyState();
     const validators: Validator[] = validatorsTypes.map((e) => getValidator(e[0], e[1]));
-    return [validate(validValue, validators, currentState), validate(invalidValue, validators, currentState)];
+    return [
+        validate(validValue, validators, currentState),
+        validate(invalidValue, validators, currentState)
+    ];
 };

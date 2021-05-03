@@ -18,12 +18,12 @@ export enum ValidationType {
 /* Function that is tied to a custom rule. Must return a boolean and will always receive two arguments: 
    value: current value of the input field where this custom rule is tied 
    state: the most updated state of the entire form. */
-export type CustomValidationRule<T extends FormValueType, S extends FormEntryConstraint = any> = (
-    value: T,
-    state: FormState<S>
-) => boolean;
+export type CustomValidationRule<
+    T extends FormValueType,
+    S extends FormEntryConstraint = Record<string, FormValueType>
+> = (value: T, state: FormState<S>) => boolean;
 
-export type ValidationValue = FormValueType | CustomValidationRule<any, any>;
+export type ValidationValue = FormValueType | CustomValidationRule<FormValueType>;
 
 export interface Validator {
     type: ValidationType;
@@ -34,7 +34,7 @@ export type ValidationFunc = (
     value: FormValueType,
     isValid: boolean,
     validator: Validator,
-    state: FormState<any>
+    state: FormState<FormEntryConstraint>
 ) => boolean;
 
 export const count = (target: string, callback: (entry: string) => boolean): number => {
@@ -101,18 +101,25 @@ const validationFunc: { [key: string]: ValidationFunc } = {
     }
 };
 
-export const validateState = (state: FormState<any>): boolean => {
-    let isValid: boolean = true;
+export const validateState = (state: FormState<FormEntryConstraint>): boolean => {
+    let isValid = true;
     for (const key in state.inputs) {
         isValid = isValid && state.inputs[key].isValid;
     }
     return isValid;
 };
 
-export const getValidator = (type: ValidationType, value: ValidationValue): Validator => ({ type, value });
+export const getValidator = (type: ValidationType, value: ValidationValue): Validator => ({
+    type,
+    value
+});
 
-export const validate = (value: FormValueType, validators: Validator[], state: FormState<any>): boolean => {
-    let isValid: boolean = true;
+export const validate = (
+    value: FormValueType,
+    validators: Validator[],
+    state: FormState<FormEntryConstraint>
+): boolean => {
+    let isValid = true;
     validators.forEach((validator) => {
         const func: ValidationFunc | undefined = validationFunc[validator.type];
         if (typeof func !== 'undefined') {

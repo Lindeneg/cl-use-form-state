@@ -45,7 +45,7 @@ test('can get input options correctly initialized', () => {
 });
 
 test('can handle invalid input options without throwing errors on validation', () => {
-    //@ts-ignore
+    //@ts-expect-error raised due to unknown input option 'ayy'
     const input = getInput<number>(5, { ayy: '', minValue: 6 });
     const emptyState = getEmptyState();
 
@@ -62,16 +62,29 @@ const handleInitialize = (state, description, isValid?) => {
 
         expect(result.current.formState).toBeDefined();
         expect(result.current.formState.inputs).toBeDefined();
-        expect(result.current.formState.isValid).toBe(typeof isValid === 'undefined' ? false : isValid);
+        expect(result.current.formState.isValid).toBe(
+            typeof isValid === 'undefined' ? false : isValid
+        );
 
         expect(Object.keys(result.current.formState)).toEqual(['inputs', 'isValid']);
-        expect(Object.keys(result.current.formState.inputs)).toEqual(['age', 'username', 'password']);
+        expect(Object.keys(result.current.formState.inputs)).toEqual([
+            'age',
+            'username',
+            'password'
+        ]);
     });
 };
 
 handleInitialize(getInitialState(), 'can initialize useForm using initial state');
-handleInitialize(getInitialInvalidInputs(), 'can initialize useForm using initial inputs with invalid state');
-handleInitialize(getInitialValidInputs(), 'can initialize useForm using initial inputs with valid state', true);
+handleInitialize(
+    getInitialInvalidInputs(),
+    'can initialize useForm using initial inputs with invalid state'
+);
+handleInitialize(
+    getInitialValidInputs(),
+    'can initialize useForm using initial inputs with valid state',
+    true
+);
 
 const handleFormValidityChange = (state, description) => {
     test(description, () => {
@@ -89,10 +102,12 @@ const handleFormValidityChange = (state, description) => {
         passwordEl.value = 'helloThere1';
 
         act(() => {
-            //@ts-ignore
-            result.current.onChangeHandler({ target: usernameEl });
-            //@ts-ignore
-            result.current.onChangeHandler({ target: passwordEl });
+            result.current.onChangeHandler({
+                target: usernameEl
+            } as React.ChangeEvent<HTMLInputElement>);
+            result.current.onChangeHandler({
+                target: passwordEl
+            } as React.ChangeEvent<HTMLInputElement>);
         });
 
         expect(result.current.formState.isValid).toBe(true);
@@ -100,8 +115,9 @@ const handleFormValidityChange = (state, description) => {
         ageEl.value = '17';
 
         act(() => {
-            //@ts-ignore
-            result.current.onChangeHandler({ target: ageEl });
+            result.current.onChangeHandler({
+                target: ageEl
+            } as React.ChangeEvent<HTMLInputElement>);
         });
 
         expect(result.current.formState.isValid).toBe(false);
@@ -109,7 +125,10 @@ const handleFormValidityChange = (state, description) => {
 };
 
 handleFormValidityChange(getInitialState(), 'can handle overall form validity with initial state');
-handleFormValidityChange(getInitialInvalidInputs(), 'can handle overall form validity with initial inputs');
+handleFormValidityChange(
+    getInitialInvalidInputs(),
+    'can handle overall form validity with initial inputs'
+);
 
 test('can handle invalid referenced variables', () => {
     const { result } = renderHook(() => useForm<TestInputState>(getInitialState()));
@@ -122,8 +141,9 @@ test('can handle invalid referenced variables', () => {
     usernameEl.value = 'lindeneg';
 
     act(() => {
-        //@ts-ignore
-        result.current.onChangeHandler({ target: usernameEl });
+        result.current.onChangeHandler({
+            target: usernameEl
+        } as React.ChangeEvent<HTMLInputElement>);
     });
 
     expect(result.current.formState.inputs.username.value).toBe('');
@@ -139,8 +159,7 @@ const handleTouchChange = (state, description) => {
         expect(result.current.formState.inputs.username.isTouched).toBe(false);
 
         act(() => {
-            //@ts-ignore
-            result.current.onTouchHandler({ target: userEl });
+            result.current.onTouchHandler({ target: userEl } as React.FocusEvent<HTMLInputElement>);
         });
 
         expect(result.current.formState.inputs.username.isTouched).toBe(true);
@@ -163,8 +182,7 @@ test('can handle changes with initial state', () => {
     expect(result.current.formState.inputs.username.validators.length).toBe(3);
 
     act(() => {
-        //@ts-ignore
-        result.current.onChangeHandler({ target: userEl });
+        result.current.onChangeHandler({ target: userEl } as React.ChangeEvent<HTMLInputElement>);
     });
 
     expect(result.current.formState.inputs.username.value).toBe('lindeneg');
@@ -173,8 +191,7 @@ test('can handle changes with initial state', () => {
     userEl.value = 'lindeneg1';
 
     act(() => {
-        //@ts-ignore
-        result.current.onChangeHandler({ target: userEl });
+        result.current.onChangeHandler({ target: userEl } as React.ChangeEvent<HTMLInputElement>);
     });
 
     expect(result.current.formState.inputs.username.value).toBe('lindeneg1');
@@ -194,8 +211,9 @@ test('can handle changes with initial inputs', () => {
     expect(result.current.formState.inputs.password.validators.length).toBe(5);
 
     act(() => {
-        //@ts-ignore
-        result.current.onChangeHandler({ target: passwordEl });
+        result.current.onChangeHandler({
+            target: passwordEl
+        } as React.ChangeEvent<HTMLInputElement>);
     });
 
     expect(result.current.formState.inputs.password.value).toBe('hellothere');
@@ -204,8 +222,9 @@ test('can handle changes with initial inputs', () => {
     passwordEl.value = 'lindeneG42';
 
     act(() => {
-        //@ts-ignore
-        result.current.onChangeHandler({ target: passwordEl });
+        result.current.onChangeHandler({
+            target: passwordEl
+        } as React.ChangeEvent<HTMLInputElement>);
     });
 
     expect(result.current.formState.inputs.password.value).toBe('lindeneG42');
@@ -285,10 +304,12 @@ const handleInputConnections = (state, description) => {
 
         // origin invalid, connection invalid
         act(() => {
-            //@ts-ignore
-            result.current.onChangeHandler({ target: passwordEl });
-            //@ts-ignore
-            result.current.onChangeHandler({ target: passwordConfirmEl });
+            result.current.onChangeHandler({
+                target: passwordEl
+            } as React.ChangeEvent<HTMLInputElement>);
+            result.current.onChangeHandler({
+                target: passwordConfirmEl
+            } as React.ChangeEvent<HTMLInputElement>);
         });
 
         expect(result.current.formState.inputs.password.value).toBe('hello there');
@@ -300,8 +321,9 @@ const handleInputConnections = (state, description) => {
 
         // origin valid, connection invalid
         act(() => {
-            //@ts-ignore
-            result.current.onChangeHandler({ target: passwordEl });
+            result.current.onChangeHandler({
+                target: passwordEl
+            } as React.ChangeEvent<HTMLInputElement>);
         });
 
         expect(result.current.formState.inputs.password.value).toBe('hello therE21');
@@ -313,8 +335,9 @@ const handleInputConnections = (state, description) => {
 
         // origin valid, connection valid
         act(() => {
-            //@ts-ignore
-            result.current.onChangeHandler({ target: passwordConfirmEl });
+            result.current.onChangeHandler({
+                target: passwordConfirmEl
+            } as React.ChangeEvent<HTMLInputElement>);
         });
 
         expect(result.current.formState.inputs.password.value).toBe('hello therE21');
@@ -326,8 +349,9 @@ const handleInputConnections = (state, description) => {
 
         // origin valid, connection invalid
         act(() => {
-            //@ts-ignore
-            result.current.onChangeHandler({ target: passwordEl });
+            result.current.onChangeHandler({
+                target: passwordEl
+            } as React.ChangeEvent<HTMLInputElement>);
         });
 
         expect(result.current.formState.inputs.password.value).toBe('hello therE2');

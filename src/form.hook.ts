@@ -15,12 +15,16 @@ enum FormAction {
     SET_FORM = 'SET_FORM'
 }
 
-interface FormPayload extends Pick<FormEntryState<any>, 'value'> {
+interface FormPayload extends Pick<FormEntryState<FormValueType>, 'value'> {
     readonly id: string;
-    readonly state?: FormState<any>;
+    readonly state?: FormState<FormEntryConstraint>;
 }
 
-type FormElementConstraint = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLOptionElement;
+type FormElementConstraint =
+    | HTMLInputElement
+    | HTMLTextAreaElement
+    | HTMLSelectElement
+    | HTMLOptionElement;
 
 type ReducerAction = { type: FormAction; payload: FormPayload };
 
@@ -34,7 +38,10 @@ type FormEntryState<T extends FormValueType> = {
     readonly connectedFields: string[];
 };
 
-export type GetInputOptions<T extends FormValueType, S extends FormEntryConstraint = any> = {
+export type GetInputOptions<
+    T extends FormValueType,
+    S extends FormEntryConstraint = Record<string, FormValueType>
+> = {
     [key: string]: T | number | boolean | CustomValidationRule<T, S> | string[] | undefined;
     minLength?: number;
     maxLength?: number;
@@ -116,10 +123,10 @@ export type FormState<T extends FormEntryConstraint> = {
  * @param options      - (optional) options for initial input state and validation
  * @returns Object of type FormEntryState
  */
-export function getInput<T extends FormValueType, S extends FormEntryConstraint = any>(
-    initialValue: T,
-    options?: GetInputOptions<T, S>
-): FormEntryState<T> {
+export function getInput<
+    T extends FormValueType,
+    S extends FormEntryConstraint = Record<string, FormValueType>
+>(initialValue: T, options?: GetInputOptions<T, S>): FormEntryState<T> {
     const parsedOptions: Omit<FormEntryState<T>, 'value'> = {
         isValid: false,
         isTouched: false,
@@ -132,7 +139,9 @@ export function getInput<T extends FormValueType, S extends FormEntryConstraint 
         parsedOptions.isValid = !!options.isValid;
         keys.forEach((key) => {
             if (!['isValid', 'isTouched', 'connectedFields'].includes(key)) {
-                parsedOptions.validators.push(getValidator(key as ValidationType, options[key] as T));
+                parsedOptions.validators.push(
+                    getValidator(key as ValidationType, options[key] as T)
+                );
             }
         });
     }
@@ -152,7 +161,10 @@ export function getInput<T extends FormValueType, S extends FormEntryConstraint 
  * @param targetId - Id of the owning input (input A in the example above)
  * @returns An object with entry keys and their updated object of type FormEntryState
  */
-const handleConnectedFields = (state: FormState<any>, targetId: string): { [key: string]: FormEntryState<any> } => {
+const handleConnectedFields = (
+    state: FormState<FormEntryConstraint>,
+    targetId: string
+): { [key: string]: FormEntryState<FormValueType> } => {
     try {
         const newInputState = { ...state.inputs };
         // find connected fields from the targetId
@@ -184,7 +196,7 @@ const handleConnectedFields = (state: FormState<any>, targetId: string): { [key:
  * @param action FormAction and FormPayload to handle
  * @returns Object with the updated FormState
  */
-function formReducer<S extends FormState<any>>(state: S, action: ReducerAction): S {
+function formReducer<S extends FormState<FormEntryConstraint>>(state: S, action: ReducerAction): S {
     const pl = action.payload;
     switch (action.type) {
         case FormAction.INPUT_CHANGE:
@@ -215,9 +227,10 @@ function formReducer<S extends FormState<any>>(state: S, action: ReducerAction):
                     isValid: validateState(newState)
                 };
             } catch (err) {
-                console.error(
-                    `use-form-state cannot recognize input-id '${pl.id}'. Please make sure that all form input names are tied to a form element, such as <input id='{ID}' />.`
-                );
+                process.env.NODE_ENV !== 'test' &&
+                    console.error(
+                        `use-form-state cannot recognize input-id '${pl.id}'. Please make sure that all form input names are tied to a form element, such as <input id='${pl.id}' />.`
+                    );
                 break;
             }
         case FormAction.INPUT_TOUCH:
@@ -233,9 +246,10 @@ function formReducer<S extends FormState<any>>(state: S, action: ReducerAction):
                     }
                 };
             } catch (err) {
-                console.error(
-                    `use-form-state cannot recognize input-id '${pl.id}'. Please make sure that all form input names are tied to a form element, such as <input id='{ID}' />.`
-                );
+                process.env.NODE_ENV !== 'test' &&
+                    console.error(
+                        `use-form-state cannot recognize input-id '${pl.id}'. Please make sure that all form input names are tied to a form element, such as <input id='${pl.id}' />.`
+                    );
                 break;
             }
         case FormAction.SET_FORM:
@@ -250,7 +264,9 @@ function formReducer<S extends FormState<any>>(state: S, action: ReducerAction):
     return state;
 }
 
-function getState<S extends FormEntryConstraint>(initialState: FormState<S> | Inputs<S>): FormState<S> {
+function getState<S extends FormEntryConstraint>(
+    initialState: FormState<S> | Inputs<S>
+): FormState<S> {
     let state: FormState<S>;
     if (
         Object.keys(initialState).length === 2 &&
@@ -275,28 +291,36 @@ function getState<S extends FormEntryConstraint>(initialState: FormState<S> | In
 
  * @returns Object of UseForm type with specified properties and types.
  */
-function useForm<S extends FormEntryConstraint>(initialState: FormState<S> | Inputs<S>): UseForm<S> {
+function useForm<S extends FormEntryConstraint>(
+    initialState: FormState<S> | Inputs<S>
+): UseForm<S> {
     const [formState, dispatch] = useReducer<Reducer<FormState<S>, ReducerAction>>(formReducer, {
         ...getState(initialState)
     });
 
     const setFormState = useCallback((state: FormState<S> | Inputs<S>): void => {
-        dispatch({ type: FormAction.SET_FORM, payload: { state: { ...getState(state) }, value: '', id: '' } });
+        dispatch({
+            type: FormAction.SET_FORM,
+            payload: { state: { ...getState(state) }, value: '', id: '' }
+        });
     }, []);
 
     const onTouchHandler: React.FocusEventHandler<FormElementConstraint> = useCallback((event) => {
         dispatch({ type: FormAction.INPUT_TOUCH, payload: { id: event.target.id, value: '' } });
     }, []);
 
-    const onChangeHandler: React.ChangeEventHandler<FormElementConstraint> = useCallback((event) => {
-        dispatch({
-            type: FormAction.INPUT_CHANGE,
-            payload: {
-                id: event.target.id,
-                value: event.target.value
-            }
-        });
-    }, []);
+    const onChangeHandler: React.ChangeEventHandler<FormElementConstraint> = useCallback(
+        (event) => {
+            dispatch({
+                type: FormAction.INPUT_CHANGE,
+                payload: {
+                    id: event.target.id,
+                    value: event.target.value
+                }
+            });
+        },
+        []
+    );
 
     return { formState, onChangeHandler, onTouchHandler, setFormState };
 }
