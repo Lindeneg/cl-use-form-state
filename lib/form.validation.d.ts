@@ -11,16 +11,16 @@ export declare enum ValidationType {
     MaxNumericalSymbols = "maxNumericalSymbols",
     CustomRule = "customRule"
 }
-export declare type CustomValidationRule<T extends FormValueType, S extends FormEntryConstraint = Record<string, FormValueType>> = (value: T, state: FormState<S>) => boolean;
-export declare type ValidationValue = FormValueType | CustomValidationRule<FormValueType>;
+export declare type CustomValidationRule<T extends FormValueType, S extends FormEntryConstraint> = (value: T, state: FormState<S>) => boolean;
+export declare type ValidationValue<T extends FormValueType, S extends FormEntryConstraint> = FormValueType | CustomValidationRule<T, S>;
 export interface Validator {
     type: ValidationType;
-    value: ValidationValue;
+    value: ValidationValue<FormValueType, FormEntryConstraint>;
 }
 export declare type ValidationFunc = (value: FormValueType, isValid: boolean, validator: Validator, state: FormState<FormEntryConstraint>) => boolean;
 export declare const count: (target: string, callback: (entry: string) => boolean) => number;
 export declare const countUpperCase: (target: string) => number;
 export declare const countNumbers: (target: string) => number;
 export declare const validateState: (state: FormState<FormEntryConstraint>) => boolean;
-export declare const getValidator: (type: ValidationType, value: ValidationValue) => Validator;
+export declare const getValidator: (type: ValidationType, value: ValidationValue<FormValueType, FormEntryConstraint>) => Validator;
 export declare const validate: (value: FormValueType, validators: Validator[], state: FormState<FormEntryConstraint>) => boolean;
