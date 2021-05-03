@@ -90,6 +90,24 @@ test('can handle minLength validation', () => {
     expect(invalid).toBe(false);
 });
 
+test('can handle minLength validation for array', () => {
+    const [valid, invalid] = getValidationResult(['hello', 'there'], [], null, [
+        ValidationType.MinLength,
+        2
+    ]);
+    expect(valid).toBe(true);
+    expect(invalid).toBe(false);
+});
+
+test('can handle maxLength validation for array', () => {
+    const [valid, invalid] = getValidationResult(['hello'], ['hello', 'there'], null, [
+        ValidationType.MaxLength,
+        1
+    ]);
+    expect(valid).toBe(true);
+    expect(invalid).toBe(false);
+});
+
 test('can handle maxLength validation', () => {
     const [valid, invalid] = getValidationResult('hello', 'hello there', null, [
         ValidationType.MaxLength,
