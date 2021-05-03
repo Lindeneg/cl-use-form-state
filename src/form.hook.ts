@@ -98,7 +98,7 @@ export type UseForm<S extends FormEntryConstraint> = {
 export type Inputs<T extends FormEntryConstraint> = { [K in keyof T]: FormEntryState<T[K]> };
 
 // Supported input vales. Can be extended if need be.
-export type FormValueType = string | number | boolean | File;
+export type FormValueType = string | string[] | number | boolean | File;
 
 /* Property names and types of inputs, for example:
    { password: string; age: number; isHappy: boolean; } */

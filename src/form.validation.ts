@@ -63,9 +63,15 @@ const validationFunc: { [key: string]: ValidationFunc } = {
         return isValid && value.toString().trim().length > 0;
     },
     [ValidationType.MinLength]: (value, isValid, validator) => {
+        if (Array.isArray(value)) {
+            return isValid && value.length >= validator.value;
+        }
         return isValid && value.toString().trim().length >= validator.value;
     },
     [ValidationType.MaxLength]: (value, isValid, validator) => {
+        if (Array.isArray(value)) {
+            return isValid && value.length <= validator.value;
+        }
         return isValid && value.toString().trim().length <= validator.value;
     },
     [ValidationType.MinValue]: (value, isValid, validator) => {

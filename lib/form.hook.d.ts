@@ -66,7 +66,7 @@ export declare type UseForm<S extends FormEntryConstraint> = {
 export declare type Inputs<T extends FormEntryConstraint> = {
     [K in keyof T]: FormEntryState<T[K]>;
 };
-export declare type FormValueType = string | number | boolean | File;
+export declare type FormValueType = string | string[] | number | boolean | File;
 export declare type FormEntryConstraint = {
     [key: string]: FormValueType;
 };
