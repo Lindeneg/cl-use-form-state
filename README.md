@@ -83,6 +83,8 @@ const SomeComponent = (props) => {
 
 `value | isValid | isTouched | validators | connectedFields`
 
+---
+
 ##### getInput Options
 
 `getInput` takes two arguments. An initial value and an object with options for the created input.
@@ -101,6 +103,8 @@ const SomeComponent = (props) => {
 | `maxNumericalSymbols`    | `number`                                               | `undefined` | -                                                                                                                                   |
 | `customRule`             | `(value: InputValueType, state: FormState) => boolean` | `undefined` | can be used to create any validation rule for any input field, see [here](https://github.com/Lindeneg/cl-use-form-state#customrule) |
 | `connectFields`          | `string[]`                                             | `undefined` | can be used to make fields dependant upon each other, see [here](https://github.com/Lindeneg/cl-use-form-state#connectfields)       |
+
+---
 
 ##### customRule
 
@@ -136,6 +140,8 @@ const { formState } = useForm<Inputs>({
     })
 });
 ```
+
+---
 
 ##### connectFields
 
