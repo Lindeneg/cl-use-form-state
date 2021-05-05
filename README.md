@@ -14,7 +14,10 @@ _If anyone should actually use this, please let me know if you have any suggesti
 
 ##### Usage
 
+_Check out [this](https://github.com/Lindeneg/cl-form-component#readme) repository for a complete Form component built on top of this library._
+
 ```tsx
+import React from 'react';
 import useForm, { getInput } from 'cl-use-form-state';
 
 type Inputs = {
@@ -25,13 +28,13 @@ type Inputs = {
 
 const SomeComponent = (props) => {
     const { formState, onChangeHandler, onTouchHandler, setFormState } = useForm<Inputs>({
-        age: getInput<number>(21, { minValue: 18, isValid: true }),
-        username: getInput<string>('', {
+        age: getInput(21, { minValue: 18, isValid: true }),
+        username: getInput('', {
             minLength: 5,
             maxLength: 12,
             maxNumericalSymbols: 0
         }),
-        password: getInput<string>('', {
+        password: getInput('', {
             minLength: 8,
             maxLength: 20,
             minNumericalSymbols: 1,
@@ -47,7 +50,12 @@ const SomeComponent = (props) => {
                 {`Username isValid: ${formState.inputs.username.isValid} | isTouched: ${formState.inputs.username.isTouched}`}
             </p>
 
-            <input id="password" type="password" onChange={onChangeHandler} onBlur={onTouchHandler} />
+            <input
+                id="password"
+                type="password"
+                onChange={onChangeHandler}
+                onBlur={onTouchHandler}
+            />
             <p>
                 {`Password isValid: ${formState.inputs.password.isValid} | isTouched: ${formState.inputs.password.isTouched}`}
             </p>
@@ -77,34 +85,22 @@ const SomeComponent = (props) => {
 
 ##### getInput Options
 
-`getInput` takes two arguments. An initial value and options for the created input.
+`getInput` takes two arguments. An initial value and an object with options for the created input.
 
-The options are as follows:
-
-```ts
-type InputOptions = {
-    // initial state
-    isValid?: boolean; // default: false
-    isTouched?: boolean; // default: false
-
-    // predefined validation rules
-    minLength?: number;
-    maxLength?: number;
-    minValue?: number;
-    maxValue?: number;
-    minUppercaseCharacters?: number;
-    maxUppercaseCharacters?: number;
-    minNumericalSymbols?: number;
-    maxNumericalSymbols?: number;
-    isRequired?: boolean;
-
-    // custom validation rule:
-    customRule?: (value: InputValueType, state: FormState) => boolean;
-
-    // connect fields
-    connectFields?: string[];
-};
-```
+| name                     | type                                                   | default     | note                                                                                                                                |
+| ------------------------ | ------------------------------------------------------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `isValid`                | `boolean`                                              | `false`     | -                                                                                                                                   |
+| `isTouched`              | `boolean`                                              | `false`     | -                                                                                                                                   |
+| `minLength`              | `number`                                               | `undefined` | -                                                                                                                                   |
+| `maxLength`              | `number`                                               | `undefined` | -                                                                                                                                   |
+| `minValue`               | `number`                                               | `undefined` | -                                                                                                                                   |
+| `maxValue`               | `number`                                               | `undefined` | -                                                                                                                                   |
+| `minUppercaseCharacters` | `number`                                               | `undefined` | -                                                                                                                                   |
+| `maxUppercaseCharacters` | `number`                                               | `undefined` | -                                                                                                                                   |
+| `minNumericalSymbols`    | `number`                                               | `undefined` | -                                                                                                                                   |
+| `maxNumericalSymbols`    | `number`                                               | `undefined` | -                                                                                                                                   |
+| `customRule`             | `(value: InputValueType, state: FormState) => boolean` | `undefined` | can be used to create any validation rule for any input field, see [here](https://github.com/Lindeneg/cl-use-form-state#customrule) |
+| `connectFields`          | `string[]`                                             | `undefined` | can be used to make fields dependant upon each other, see [here](https://github.com/Lindeneg/cl-use-form-state#connectfields)       |
 
 ##### customRule
 
@@ -116,7 +112,8 @@ Lets say you have an input where you'd only want to support `username`s that sta
 
 ```ts
 const { formState } = useForm<Inputs>({
-    age: getInput<number, Inputs>(21, { minValue: 18, isValid: true }),
+    age: getInput(21, { minValue: 18, isValid: true }),
+    // pass value and state type args for customRule
     username: getInput<string, Inputs>('', {
         minLength: 5,
         maxNumericalSymbols: 0,
@@ -131,7 +128,7 @@ const { formState } = useForm<Inputs>({
             );
         }
     }),
-    password: getInput<string>('', {
+    password: getInput('', {
         minLength: 8,
         maxLength: 20,
         minNumericalSymbols: 1,
@@ -158,12 +155,12 @@ type AuthInputs = {
 };
 
 const { formState } = useForm<AuthInputs>({
-    username: getInput<string>('', {
+    username: getInput('', {
         minLength: 5,
         maxLength: 12,
         maxNumericalSymbols: 0
     }),
-    password: getInput<string>('', {
+    password: getInput('', {
         minLength: 8,
         maxLength: 20,
         minNumericalSymbols: 1,
@@ -171,9 +168,11 @@ const { formState } = useForm<AuthInputs>({
         // run validation for passwordConfirmation on each password value change
         connectFields: ['passwordConfirmation']
     }),
+    // pass value and state type args for customRule
     passwordConfirmation: getInput<string, AuthInputs>('', {
         // verify password is valid and then check if passwordConfirmation and password are equal
-        customRule: (value, state) => state.inputs.password.isValid && value === state.inputs.password.value
+        customRule: (value, state) =>
+            state.inputs.password.isValid && value === state.inputs.password.value
     })
 });
 ```
@@ -182,7 +181,7 @@ Or in the `customRule` example, where the validation for `username` should run e
 
 ```ts
 const { formState } = useForm<Inputs>({
-    age: getInput<number, Inputs>(21, {
+    age: getInput(21, {
         minValue: 18,
         isValid: true,
         connectFields: ['username']
@@ -201,7 +200,7 @@ const { formState } = useForm<Inputs>({
             );
         }
     }),
-    password: getInput<string>('', {
+    password: getInput('', {
         minLength: 8,
         maxLength: 20,
         minNumericalSymbols: 1,
