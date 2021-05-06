@@ -9,7 +9,7 @@ declare type FormEntryState<T extends FormValueType> = {
     readonly connectedFields: string[];
 };
 export declare type GetInputOptions<T extends FormValueType, S extends FormEntryConstraint = Record<string, FormValueType>> = {
-    [key: string]: T | number | boolean | CustomValidationRule<T, S> | string[] | undefined;
+    [key: string]: number | boolean | CustomValidationRule<T, S> | string[] | undefined;
     minLength?: number;
     maxLength?: number;
     minValue?: number;
@@ -66,7 +66,7 @@ export declare type UseForm<S extends FormEntryConstraint> = {
 export declare type Inputs<T extends FormEntryConstraint> = {
     [K in keyof T]: FormEntryState<T[K]>;
 };
-export declare type FormValueType = string | string[] | number | boolean | File;
+export declare type FormValueType = string | string[] | number | boolean | File | undefined | null;
 export declare type FormEntryConstraint = {
     [key: string]: FormValueType;
 };
