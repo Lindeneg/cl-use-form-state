@@ -42,7 +42,7 @@ export type GetInputOptions<
     T extends FormValueType,
     S extends FormEntryConstraint = Record<string, FormValueType>
 > = {
-    [key: string]: T | number | boolean | CustomValidationRule<T, S> | string[] | undefined;
+    [key: string]: number | boolean | CustomValidationRule<T, S> | string[] | undefined;
     minLength?: number;
     maxLength?: number;
     minValue?: number;
@@ -105,7 +105,7 @@ export type UseForm<S extends FormEntryConstraint> = {
 export type Inputs<T extends FormEntryConstraint> = { [K in keyof T]: FormEntryState<T[K]> };
 
 // Supported input vales. Can be extended if need be.
-export type FormValueType = string | string[] | number | boolean | File;
+export type FormValueType = string | string[] | number | boolean | File | undefined | null;
 
 /* Property names and types of inputs, for example:
    { password: string; age: number; isHappy: boolean; } */
