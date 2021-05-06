@@ -1,23 +1,16 @@
 ## cl-use-form-state
 
-React form state and validation hook
+react form state and validation hook
 
 ---
 
-#### Dev Todo
-
-- Provide `onUpload` function that can be used to keep track of a `File`.
-
-- Provide `onMultipleSelect` function that can keep track of an array of selected `<option />` elements
-
----
+_If anyone should actually use this, please let me know if you have any suggestions, improvements or ideas. It's all about learning and improving!_
 
 ###### Install
 
 `$ yarn add cl-use-form-state`
 
 ---
-
 
 ##### Usage
 
