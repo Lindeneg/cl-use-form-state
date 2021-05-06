@@ -20,6 +20,7 @@
 .env.production.local
 paw.ini
 
+temp
 /example
 .eslintcache
 npm-debug.log*

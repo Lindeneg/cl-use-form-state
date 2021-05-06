@@ -60,43 +60,95 @@ export const countNumbers = (target: string): number => {
     });
 };
 
+function checkIsValid<T extends FormValueType>(
+    isValid: boolean,
+    value: FormValueType,
+    validatorValue: ValidationValue<FormValueType, FormEntryConstraint>,
+    callback: (value: T, rule: number) => boolean
+): boolean {
+    if (typeof value !== 'undefined' && value !== null && typeof validatorValue === 'number') {
+        return isValid && callback(value as T, validatorValue);
+    }
+    return isValid;
+}
+
 const validationFunc: { [key: string]: ValidationFunc } = {
     [ValidationType.Require]: (value, isValid) => {
-        return isValid && value.toString().trim().length > 0;
+        if (Array.isArray(value)) {
+            return value.length > 0;
+        }
+        return (
+            isValid &&
+            typeof value !== 'undefined' &&
+            value !== null &&
+            value.toString().trim().length > 0
+        );
     },
     [ValidationType.MinLength]: (value, isValid, validator) => {
-        if (Array.isArray(value)) {
-            return isValid && value.length >= validator.value;
-        }
-        return isValid && value.toString().trim().length >= validator.value;
+        return checkIsValid<string | string[]>(
+            isValid,
+            value,
+            validator.value,
+            (actualValue, rule) => {
+                if (Array.isArray(actualValue)) {
+                    return actualValue.length >= rule;
+                }
+                return actualValue.toString().trim().length >= rule;
+            }
+        );
     },
     [ValidationType.MaxLength]: (value, isValid, validator) => {
-        if (Array.isArray(value)) {
-            return isValid && value.length <= validator.value;
-        }
-        return isValid && value.toString().trim().length <= validator.value;
+        return checkIsValid<string | string[]>(
+            isValid,
+            value,
+            validator.value,
+            (actualValue, rule) => {
+                if (Array.isArray(actualValue)) {
+                    return actualValue.length <= rule;
+                }
+                return actualValue.toString().trim().length <= rule;
+            }
+        );
     },
     [ValidationType.MinValue]: (value, isValid, validator) => {
-        return isValid && +value >= validator.value;
+        return checkIsValid<string | number>(
+            isValid,
+            value,
+            validator.value,
+            (actualValue, rule) => +actualValue >= rule
+        );
     },
     [ValidationType.MaxValue]: (value, isValid, validator) => {
-        return isValid && +value <= validator.value;
+        return checkIsValid<string | number>(
+            isValid,
+            value,
+            validator.value,
+            (actualValue, rule) => +actualValue <= rule
+        );
     },
     [ValidationType.MinUppercaseCharacters]: (value, isValid, validator) => {
-        const uppercaseChars: number = countUpperCase(value.toString());
-        return isValid && uppercaseChars >= validator.value;
+        return checkIsValid<string>(isValid, value, validator.value, (actualValue, rule) => {
+            const uppercaseChars = countUpperCase(actualValue);
+            return uppercaseChars >= rule;
+        });
     },
     [ValidationType.MaxUppercaseCharacters]: (value, isValid, validator) => {
-        const uppercaseChars: number = countUpperCase(value.toString());
-        return isValid && uppercaseChars <= validator.value;
+        return checkIsValid<string>(isValid, value, validator.value, (actualValue, rule) => {
+            const uppercaseChars = countUpperCase(actualValue);
+            return uppercaseChars <= rule;
+        });
     },
     [ValidationType.MinNumericalSymbols]: (value, isValid, validator) => {
-        const numericalSymbols: number = countNumbers(value.toString());
-        return isValid && numericalSymbols >= validator.value;
+        return checkIsValid<string>(isValid, value, validator.value, (actualValue, rule) => {
+            const numericalSymbols = countNumbers(actualValue.toString());
+            return numericalSymbols >= rule;
+        });
     },
     [ValidationType.MaxNumericalSymbols]: (value, isValid, validator) => {
-        const numericalSymbols: number = countNumbers(value.toString());
-        return isValid && numericalSymbols <= validator.value;
+        return checkIsValid<string>(isValid, value, validator.value, (actualValue, rule) => {
+            const numericalSymbols = countNumbers(actualValue.toString());
+            return numericalSymbols <= rule;
+        });
     },
     [ValidationType.CustomRule]: (value, isValid, validator, state) => {
         return isValid && typeof validator.value === 'function' && validator.value(value, state);
