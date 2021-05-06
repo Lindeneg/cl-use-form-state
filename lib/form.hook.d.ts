@@ -64,7 +64,7 @@ export declare type UseForm<S extends FormEntryConstraint> = {
     setFormState: (state: FormState<S> | Inputs<S>) => void;
 };
 export declare type Inputs<T extends FormEntryConstraint> = {
-    [K in keyof T]: FormEntryState<T[K]>;
+    [K in keyof T]: FormEntryState<T[K] extends File ? T[K] | null : T[K]>;
 };
 export declare type FormValueType = string | string[] | number | boolean | File | undefined | null;
 export declare type FormEntryConstraint = {
