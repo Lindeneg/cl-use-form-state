@@ -87,6 +87,9 @@ export interface Validator {
   value: ValidationValue<InputValueType, FormEntryConstraint>;
 }
 
+/**
+ * Mapped type of the input keys
+ */
 export type KeyOf<
   S extends FormEntryConstraint,
   T extends keyof Inputs<S> = keyof S
