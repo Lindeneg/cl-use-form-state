@@ -94,7 +94,7 @@ test.each([
     "initial"
   ),
   getState(
-    "can handle overall form validity with initial inputs using onChangeHandler",
+    "can handle overall form validity with invalid inputs using onChangeHandler",
     "invalid"
   ),
 ])("%s", ({ description, valid, inputs }) => {
@@ -114,7 +114,7 @@ test.each([
   usernameEl.id = "username";
   passwordEl.id = "password";
 
-  expect(result.current.isValid).toBe(false);
+  expect(result.current.isValid).toBe(valid);
 
   usernameEl.value = "lindeneg";
   passwordEl.value = "helloThere1";
@@ -128,9 +128,9 @@ test.each([
     } as React.ChangeEvent<HTMLInputElement>);
   });
 
-  expect(result.current.isValid).toBe(true);
+  expect(result.current.isValid).toBe(!valid);
 
-  ageEl.value = "17";
+  ageEl.value = "8";
 
   act(() => {
     result.current.onChangeHandler({
@@ -138,7 +138,7 @@ test.each([
     } as React.ChangeEvent<HTMLInputElement>);
   });
 
-  expect(result.current.isValid).toBe(false);
+  expect(result.current.isValid).toBe(valid);
 });
 
 test("can handle change using updateInput", () => {
@@ -374,10 +374,10 @@ test.each([
     });
     return state;
   })(),
-])("%s", (_, __, inputs) => {
+])("%s", ({ description, valid, inputs }) => {
   const { result } = renderHook(() =>
     useForm<TestInputState>((createInput) => {
-      return (inputs[2] as MetaState[])
+      return inputs
         .map((input) => ({
           [input.key]: createInput(input.value, input.options),
         }))
