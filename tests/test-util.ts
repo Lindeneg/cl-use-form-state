@@ -22,10 +22,12 @@ export type MetaState = {
   options: GetInputOptions<unknown, TestInputState>;
 };
 
-export const getEmptyState = (): FormState<FormEntryConstraint> => ({
-  inputs: {},
-  isValid: false,
-});
+export function getEmptyState<T extends FormEntryConstraint>() {
+  return {
+    inputs: {},
+    isValid: false,
+  } as FormState<T>;
+}
 
 export const getState = (
   description: string,
@@ -72,13 +74,13 @@ export const getState = (
   ],
 });
 
-export const getValidationResult = (
+export function getValidationResult<T extends FormEntryConstraint>(
   validValue: InputValueType,
   invalidValue: InputValueType,
-  state: FormState<FormEntryConstraint> | null,
+  state: FormState<T> | null,
   ...validatorsTypes: Array<[ValidationType, ValidationValue<any, any>]>
-): [boolean, boolean] => {
-  const currentState = state !== null ? state : getEmptyState();
+): [boolean, boolean] {
+  const currentState = state !== null ? state : getEmptyState<T>();
   const validators: Validator[] = validatorsTypes.map((e) =>
     getValidator(e[0], e[1])
   );
@@ -86,4 +88,4 @@ export const getValidationResult = (
     validate(validValue, validators, currentState),
     validate(invalidValue, validators, currentState),
   ];
-};
+}
