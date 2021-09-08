@@ -1,6 +1,6 @@
 {
   "name": "cl-use-form-state",
-  "description": "Small utility to keep track of form state in React.",
+  "description": "React hook to keep track of form input state & validation.",
   "version": "1.2.1",
   "author": {
     "name": "Christian Lindeneg",
