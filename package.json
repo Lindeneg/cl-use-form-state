@@ -9,9 +9,11 @@
   },
   "keywords": [
     "react",
-    "react-form",
-    "form-state",
-    "form-validation"
+    "javascript",
+    "typescript",
+    "form",
+    "state",
+    "validation"
   ],
   "repository": {
     "type": "git",
