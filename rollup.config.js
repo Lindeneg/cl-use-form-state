@@ -14,12 +14,6 @@ export default {
       sourcemap: true,
       exports: "named",
     },
-    {
-      file: packageJson.module,
-      format: "esm",
-      exports: "named",
-      sourcemap: true,
-    },
   ],
   plugins: [
     cleaner({
