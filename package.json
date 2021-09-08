@@ -29,9 +29,7 @@
     "clean:soft": "rm -rf ./lib",
     "clean:hard": "yarn run clean:soft && rm -rf ./node_modules",
     "clean:reset": "yarn run clean:hard && rm yarn.lock",
-    "style": "yarn run style:format && yarn run style:lint",
-    "style:lint": "yarn eslint ./src --cache --config ./.eslintrc.json",
-    "style:format": "yarn prettier ./src --check",
+    "style": "yarn prettier ./src --check",
     "style:fix": "yarn prettier ./src --write"
   },
   "peerDependencies": {
