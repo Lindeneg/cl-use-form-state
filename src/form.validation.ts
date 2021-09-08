@@ -7,10 +7,6 @@ import {
   ValidationType,
 } from "./form.shared";
 
-/**
- * `Enum` of supported form actions. Can be extended but
- * should cover the majority of use-cases for a form.
- */
 export type ValidationFunc<S extends FormEntryConstraint> = (
   value: InputValueType,
   isValid: boolean,
@@ -66,10 +62,6 @@ function checkIsValid<T extends InputValueType>(
   return isValid;
 }
 
-/**
- * `Enum` of supported form actions. Can be extended but
- * should cover the majority of use-cases for a form.
- */
 const validationFunc: {
   [key: string]: ValidationFunc<FormState<FormEntryConstraint>>;
 } = {
