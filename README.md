@@ -49,7 +49,6 @@ export function Component() {
         maxLength: 64,
         minNumericalSymbols: 1,
         minUppercaseCharacters: 1,
-        connectFields: ["confirmation"],
       }),
       age: createInput(null, { minValue: 18 }),
     };
@@ -94,7 +93,8 @@ export function Component() {
       <button
         onClick={(e) => {
           e.preventDefault();
-          console.log(getInputValues());
+          console.log("getInputValues:", getInputValues());
+          console.log("inputs:", inputs);
         }}
         disabled={!isValid}
       >
@@ -130,9 +130,31 @@ export function Component() {
 
 ##### updateInput
 
----
+`updateInput` can be used to update the value of an input if `onChangeHandler` cannot be used.
+It takes two arguments, the `id` of the input to change and the new `value` of that input.
+The type of the `value` argument is inferred from the `id`. Say we have these simple input types
 
-##### setFormState
+```ts
+type FormInputs = {
+  name: string;
+  age: number;
+};
+```
+
+and we use `updateInput` as an `onClick` handler. Then this pattern follows:
+
+```ts
+
+// Ok
+
+onClick={() => updateInput("name", "someValue")} // expects string
+onClick={() => updateInput("age", 21)}           // expects number
+
+// Not ok
+
+onClick={() => updateInput("name", 21)}          // expects string
+onClick={() => updateInput("age", "someValue")}  // expects number
+```
 
 ---
 
@@ -140,23 +162,28 @@ export function Component() {
 
 A `customRule` must be a function that takes two arguments, `value` and `state`. The value will always be the newest value of the associated input field while the state always will be the newest state of the entire form.
 
-Lets say you have an input where you'd only want to support any given `username` that starts with C, ends with h and has a maximum length of the current `age` value:
+Lets say you have an input where you'd only want to support any given `username` that starts with **C**, ends with **h** and has a maximum length of the current `age` value:
 
 ```ts
-const form = useForm<{ age: number; username: string }>({
-  age: getInput(18, { minValue: 18, isValid: true }),
-  username: getInput("", {
-    customRule: (value, state) => {
-      const trimmedValue = value.trim();
-      const length = trimmedValue.length;
-      return (
-        length > 0 &&
-        length <= state.inputs.age.value &&
-        trimmedValue[0] === "C" &&
-        trimmedValue[length - 1] === "h"
-      );
-    },
-  }),
+const form = useForm<{
+  name: string;
+  age: number | null;
+}>((createInput) => {
+  return {
+    name: createInput("", {
+      customRule: (value, state) => {
+        const trimmedValue = value.trim();
+        const length = trimmedValue.length;
+        return (
+          length > 0 &&
+          length <= (state.inputs.age.value || 0) &&
+          trimmedValue[0] === "C" &&
+          trimmedValue[length - 1] === "h"
+        );
+      },
+    }),
+    age: createInput(null, { minValue: 1 }),
+  };
 });
 ```
 
@@ -164,40 +191,29 @@ const form = useForm<{ age: number; username: string }>({
 
 ##### connectFields
 
-If you have a field that is dependant upon another field, this can be specified in the `connectFields` option.
+The above `customRule` example has an issue. Lets assume that we have a `name` that starts with **C**, ends with **h** and has a maximum length of the `age` value. Lets say the `name` length is `12` and the `age` value is `15`. Now `name` is a valid input. However, if we change the `age` value to say `10`, then the `name` value is still valid although it no longer satisfies its own validation constraints.
 
-Say you have a signup form with a `password` input and a `passwordConfirmation` input, then `passwordConfirmation` is dependant upon the `password` value.
-
-In other words, each time the value of `password` changes, the validation for `passwordConfirmation` should be re-run.
-
-Example:
+In this scenario, we want a behavior where each time the value of `age` changes, the validation for `name` is re-run. We can achieve this using the `connectFields` option, that just takes an `id` of the input we'd like to connect.
 
 ```ts
-type AuthInputs = {
-  username: string;
-  password: string;
-  passwordConfirmation: string;
-};
-
-const { formState } = useForm<AuthInputs>({
-  username: getInput("", {
-    minLength: 5,
-    maxLength: 12,
-    maxNumericalSymbols: 0,
-  }),
-  password: getInput("", {
-    minLength: 8,
-    maxLength: 20,
-    minNumericalSymbols: 1,
-    minUppercaseCharacters: 1,
-    // run validation for passwordConfirmation on each password value change
-    connectFields: ["passwordConfirmation"],
-  }),
-  // pass value and state type args for customRule
-  passwordConfirmation: getInput<string, AuthInputs>("", {
-    // verify password is valid and then check if passwordConfirmation and password are equal
-    customRule: (value, state) =>
-      state.inputs.password.isValid && value === state.inputs.password.value,
-  }),
+const form = useForm<{
+  name: string;
+  age: number | null;
+}>((createInput) => {
+  return {
+    name: createInput("", {
+      customRule: (value, state) => {
+        const trimmedValue = value.trim();
+        const length = trimmedValue.length;
+        return (
+          length > 0 &&
+          length <= (state.inputs.age.value || 0) &&
+          trimmedValue[0] === "C" &&
+          trimmedValue[length - 1] === "h"
+        );
+      },
+    }),
+    age: createInput(null, { minValue: 1, connectFields: ["name"] }),
+  };
 });
 ```
