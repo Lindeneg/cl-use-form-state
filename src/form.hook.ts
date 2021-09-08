@@ -6,7 +6,7 @@ import {
   InputValueType,
   Inputs,
   ValidationType,
-  CustomValidationRule,
+  GetInputOptions,
 } from "./form.shared";
 import { getValidator, validate, validateState } from "./form.validation";
 
@@ -25,9 +25,9 @@ enum FormAction {
  * always correspond to a key in the `state.inputs` object.
  */
 interface FormPayload<S extends FormEntryConstraint, T extends keyof Inputs<S>>
-  extends Pick<FormEntryState<InputValueType>, "value"> {
+  extends Pick<FormEntryState<InputValueType, S>, "value"> {
   readonly id: T;
-  readonly state?: FormState<FormEntryConstraint>;
+  readonly state?: FormState<S>;
 }
 
 /**
@@ -49,34 +49,6 @@ type ReducerAction<S extends FormEntryConstraint, T extends keyof Inputs<S>> = {
 };
 
 /**
- * Validation options for `getInput` function.
- */
-export type GetInputOptions<
-  T extends InputValueType,
-  S extends FormEntryConstraint
-> = {
-  [key: string]:
-    | number
-    | boolean
-    | CustomValidationRule<T, S>
-    | string[]
-    | undefined;
-  minLength?: number;
-  maxLength?: number;
-  minValue?: number;
-  maxValue?: number;
-  minUppercaseCharacters?: number;
-  maxUppercaseCharacters?: number;
-  minNumericalSymbols?: number;
-  maxNumericalSymbols?: number;
-  isRequired?: boolean;
-  isValid?: boolean;
-  isTouched?: boolean;
-  customRule?: CustomValidationRule<T, S>;
-  connectFields?: string[];
-};
-
-/**
  * Get an object of type `FormEntryState` by just defining the input type, initial value and options.
  *
  * @param initialValue - initial value of the input entry.
@@ -86,8 +58,8 @@ export type GetInputOptions<
 export function getInput<
   T extends InputValueType,
   S extends FormEntryConstraint
->(initialValue: T, options?: GetInputOptions<T, S>): FormEntryState<T> {
-  const parsedOptions: Omit<FormEntryState<T>, "value"> = {
+>(initialValue: T, options?: GetInputOptions<T, S>): FormEntryState<T, S> {
+  const parsedOptions: Omit<FormEntryState<T, S>, "value"> = {
     isValid: false,
     isTouched: false,
     validators: [],
@@ -100,7 +72,7 @@ export function getInput<
     keys.forEach((key) => {
       if (!["isValid", "isTouched", "connectedFields"].includes(key)) {
         parsedOptions.validators.push(
-          getValidator(key as ValidationType, options[key] as T)
+          getValidator(key as ValidationType, options[key])
         );
       }
     });
@@ -121,10 +93,10 @@ export function getInput<
  * @param targetId - Id of the owning input (input A in the example above)
  * @returns An object with entry keys and their updated object of type `FormEntryState`
  */
-const handleConnectedFields = (
-  state: FormState<FormEntryConstraint>,
+function handleConnectedFields<S extends FormEntryConstraint>(
+  state: FormState<S>,
   targetId: string
-): { [key: string]: FormEntryState<InputValueType> } => {
+): Inputs<S> {
   try {
     const newInputState = { ...state.inputs };
     // find connected fields from the targetId
@@ -147,7 +119,7 @@ const handleConnectedFields = (
     process.env.NODE_ENV === "development" && console.error(err);
     return state.inputs;
   }
-};
+}
 
 /**
  * Handle changes to `FormState` given an action associated with a payload.
@@ -156,23 +128,23 @@ const handleConnectedFields = (
  * @param action - `FormAction` and `FormPayload` to handle
  * @returns Object with the updated `FormState`
  */
-function formReducer<S extends FormState<FormEntryConstraint>>(
-  state: S,
+function formReducer<S extends FormEntryConstraint>(
+  state: FormState<S>,
   action: ReducerAction<S, any>
-): S {
+): FormState<S> {
   const pl = action.payload;
   switch (action.type) {
     case FormAction.INPUT_CHANGE:
       try {
         // copy the current state, update the entry with the specified payload Id and validate it.
-        const newState: S = {
+        const newState: FormState<S> = {
           ...state,
           inputs: {
             ...state.inputs,
             [pl.id]: {
               ...state.inputs[pl.id],
               value: pl.value,
-              isValid: validate<InputValueType, S>(
+              isValid: validate(
                 pl.value,
                 state.inputs[pl.id].validators,
                 state
@@ -221,7 +193,7 @@ function formReducer<S extends FormState<FormEntryConstraint>>(
       }
     case FormAction.SET_FORM:
       if (typeof pl.state !== "undefined") {
-        return { ...(pl.state as S) };
+        return { ...(pl.state as FormState<S>) };
       } else {
         return state;
       }
@@ -270,7 +242,7 @@ export function useForm<S extends FormEntryConstraint>(
     createInput: <T extends InputValueType>(
       initialValue: T,
       options?: GetInputOptions<T, S>
-    ) => FormEntryState<T>
+    ) => FormEntryState<T, S>
   ) => FormState<S> | Inputs<S>
 ) {
   const [formState, dispatch] = useReducer<
@@ -281,6 +253,9 @@ export function useForm<S extends FormEntryConstraint>(
 
   const { inputs, isValid } = formState;
 
+  /**
+   * Callback to (re)set the entire form state.
+   */
   const setFormState = useCallback((state: FormState<S> | Inputs<S>): void => {
     dispatch({
       type: FormAction.SET_FORM,
@@ -288,6 +263,9 @@ export function useForm<S extends FormEntryConstraint>(
     });
   }, []);
 
+  /**
+   * Runs every time the element this handler is tied, is focused.
+   */
   const onTouchHandler: React.FocusEventHandler<FormElementConstraint> = useCallback(
     (event) => {
       dispatch({
@@ -298,6 +276,9 @@ export function useForm<S extends FormEntryConstraint>(
     []
   );
 
+  /**
+   * Optional callback to update the value of a given input.
+   */
   const updateInput = useCallback(
     <T extends keyof Inputs<S>>(id: T, value: S[T]) => {
       dispatch({
@@ -311,19 +292,41 @@ export function useForm<S extends FormEntryConstraint>(
     []
   );
 
+  function maybeGetNumber(target: string): number | string {
+    try {
+      const number = Number(target);
+      if (typeof number === "number" && !Number.isNaN(number)) {
+        return number;
+      }
+    } catch (err) {
+      process.env.NODE_ENV === "development" && console.error(err);
+    }
+    return target;
+  }
+
+  /**
+   * Get a converted version of `Inputs` where each `input` key
+   * only has it's current `value` as a value.
+   */
   const getInputValues = useCallback(() => {
     return Object.keys(inputs)
       .map((key) => ({ [key]: inputs[key].value }))
-      .reduce((a, b) => ({ ...a, ...b }), {});
+      .reduce((a, b) => ({ ...a, ...b }), {}) as S;
   }, [inputs]);
 
+  /**
+   * Runs every time the element this handler is tied to, changes.
+   */
   const onChangeHandler: React.ChangeEventHandler<FormElementConstraint> = useCallback(
     (event) => {
       dispatch({
         type: FormAction.INPUT_CHANGE,
         payload: {
           id: event.target.id,
-          value: event.target.value,
+          value:
+            event.target.getAttribute("type") === "number"
+              ? maybeGetNumber(event.target.value)
+              : event.target.value,
         },
       });
     },

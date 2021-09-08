@@ -7,11 +7,15 @@ import {
   ValidationType,
 } from "./form.shared";
 
-export type ValidationFunc<S extends FormState<FormEntryConstraint>> = (
+/**
+ * `Enum` of supported form actions. Can be extended but
+ * should cover the majority of use-cases for a form.
+ */
+export type ValidationFunc<S extends FormEntryConstraint> = (
   value: InputValueType,
   isValid: boolean,
   validator?: Validator,
-  state?: S
+  state?: FormState<S>
 ) => boolean;
 
 export const count = (
@@ -62,6 +66,10 @@ function checkIsValid<T extends InputValueType>(
   return isValid;
 }
 
+/**
+ * `Enum` of supported form actions. Can be extended but
+ * should cover the majority of use-cases for a form.
+ */
 const validationFunc: {
   [key: string]: ValidationFunc<FormState<FormEntryConstraint>>;
 } = {
@@ -168,8 +176,8 @@ const validationFunc: {
   },
 };
 
-export const validateState = (
-  state: FormState<FormEntryConstraint>
+export const validateState = <S extends FormEntryConstraint>(
+  state: FormState<S>
 ): boolean => {
   let isValid = true;
   for (const key in state.inputs) {
@@ -186,17 +194,16 @@ export const getValidator = (
   value,
 });
 
-export const validate = <
-  T extends InputValueType,
-  S extends FormState<FormEntryConstraint>
->(
-  value: T,
+export const validate = <S extends FormEntryConstraint>(
+  value: unknown,
   validators: Validator[],
-  state: S
+  state: FormState<S>
 ): boolean => {
   let isValid = true;
   validators.forEach((validator) => {
-    const func: ValidationFunc<S> | undefined = validationFunc[validator.type];
+    const func = validationFunc[validator.type] as
+      | ValidationFunc<S>
+      | undefined;
     if (typeof func !== "undefined") {
       isValid = func(value, isValid, validator, state);
     }

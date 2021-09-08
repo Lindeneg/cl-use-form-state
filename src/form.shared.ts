@@ -25,19 +25,22 @@ export type FormState<T extends FormEntryConstraint> = {
  * Mapped type of `string` keys with `FormEntryState` values
  */
 export type Inputs<T extends FormEntryConstraint> = {
-  [K in keyof T]: FormEntryState<T[K] extends File ? T[K] | null : T[K]>;
+  [K in keyof T]: FormEntryState<T[K] extends File ? T[K] | null : T[K], T>;
 };
 
 /**
  * This is the base for any input entry in a `formState`. In other words
  * all input entries will have these properties available.
  */
-export type FormEntryState<T extends InputValueType> = {
+export type FormEntryState<
+  T extends InputValueType,
+  S extends FormEntryConstraint
+> = {
   value: T;
   isValid: boolean;
   isTouched: boolean;
   readonly validators: Validator[];
-  readonly connectedFields: string[];
+  readonly connectedFields: KeyOf<S>[];
 };
 
 /**
@@ -83,3 +86,36 @@ export interface Validator {
   type: ValidationType;
   value: ValidationValue<InputValueType, FormEntryConstraint>;
 }
+
+export type KeyOf<
+  S extends FormEntryConstraint,
+  T extends keyof Inputs<S> = keyof S
+> = T;
+
+/**
+ * Validation options for `getInput` function.
+ */
+export type GetInputOptions<
+  T extends InputValueType,
+  S extends FormEntryConstraint
+> = {
+  [key: string]:
+    | number
+    | boolean
+    | CustomValidationRule<T, S>
+    | KeyOf<S>[]
+    | undefined;
+  minLength?: number;
+  maxLength?: number;
+  minValue?: number;
+  maxValue?: number;
+  minUppercaseCharacters?: number;
+  maxUppercaseCharacters?: number;
+  minNumericalSymbols?: number;
+  maxNumericalSymbols?: number;
+  isRequired?: boolean;
+  isValid?: boolean;
+  isTouched?: boolean;
+  customRule?: CustomValidationRule<T, S>;
+  connectFields?: KeyOf<S>[];
+};
