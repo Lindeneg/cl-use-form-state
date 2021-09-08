@@ -23,7 +23,7 @@
   "module": "lib/index.esm.js",
   "scripts": {
     "build": "rollup -c",
-    "test": "jest",
+    "test": "jest --verbose",
     "test:watch": "jest --watch",
     "clean": "yarn run clean:soft",
     "clean:soft": "rm -rf ./lib",
