@@ -36,7 +36,7 @@ export function Component() {
     onTouchHandler,
     // optional function to update input value
     updateInput,
-    // optional function set (re)set entire form state
+    // optional function to (re)set entire form state
     setFormState,
   } = useForm<FormInputs>((createInput) => {
     /* useForm takes a function as its argument and that function
