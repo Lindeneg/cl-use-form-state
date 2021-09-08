@@ -148,10 +148,12 @@ test("can handle change using updateInput", () => {
     }));
   });
   expect(result.current.inputs.test.value).toEqual("");
+  expect(result.current.inputs.test.isValid).toEqual(false);
   act(() => {
     result.current.updateInput("test", "hello there");
   });
   expect(result.current.inputs.test.value).toEqual("hello there");
+  expect(result.current.inputs.test.isValid).toEqual(true);
 });
 
 test("can handle invalid referenced variables", () => {
