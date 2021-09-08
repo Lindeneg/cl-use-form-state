@@ -2,12 +2,7 @@ import { renderHook, act } from "@testing-library/react-hooks";
 import { useForm, getInput } from "../src/form.hook";
 import { FormEntryConstraint, FormState, Inputs } from "../src/form.shared";
 import { validate } from "../src/form.validation";
-import {
-  TestInputState,
-  getEmptyState,
-  getState,
-  MetaState,
-} from "./test-util";
+import { TestInputState, getEmptyState, getState } from "./test-util";
 
 test("can get empty input correctly initialized", () => {
   const input = getInput("");
@@ -347,7 +342,7 @@ test.each([
       key: "confirmPassword",
       value: "",
       options: {
-        customRule: (value: unknown, state: FormState<FormEntryConstraint>) => {
+        customRule: (value, state) => {
           return (
             state.inputs.password.isValid &&
             state.inputs.password.value === value
@@ -366,7 +361,7 @@ test.each([
       key: "confirmPassword",
       value: "",
       options: {
-        customRule: (value: unknown, state: FormState<FormEntryConstraint>) => {
+        customRule: (value, state) => {
           return (
             state.inputs.password.isValid &&
             state.inputs.password.value === value

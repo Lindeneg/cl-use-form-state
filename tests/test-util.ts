@@ -1,6 +1,6 @@
-import { GetInputOptions } from "../src/form.hook";
 import {
   FormState,
+  GetInputOptions,
   InputValueType,
   ValidationType,
   Validator,
