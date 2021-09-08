@@ -1,0 +1,57 @@
+export type InputValueType = unknown;
+
+/* Property names and types of inputs, for example:
+   { password: string; age: number; isHappy: boolean; } */
+export type FormEntryConstraint = { [key: string]: InputValueType };
+
+export type FormState<T extends FormEntryConstraint> = {
+  inputs: Inputs<T>;
+  isValid: boolean;
+};
+
+export type Inputs<T extends FormEntryConstraint> = {
+  [K in keyof T]: FormEntryState<T[K] extends File ? T[K] | null : T[K]>;
+};
+
+/* This is the base for any input entry in a 'formState'. In other words
+   all input entries will have these properties available. */
+export type FormEntryState<T extends InputValueType> = {
+  value: T;
+  isValid: boolean;
+  isTouched: boolean;
+  readonly validators: Validator[];
+  readonly connectedFields: string[];
+};
+
+/* Function that is tied to a custom rule. Must return a boolean and will always receive two arguments: 
+   value: current value of the input field where this custom rule is tied 
+   state: the most updated state of the entire form. */
+export type CustomValidationRule<
+  T extends InputValueType,
+  S extends FormEntryConstraint
+> = (value: T, state: FormState<S>) => boolean;
+
+export type ValidationValue<
+  T extends InputValueType,
+  S extends FormEntryConstraint
+> = T | CustomValidationRule<T, S>;
+
+/* Predefined validation options. However, a custom rule, which takes a function, can be created
+   and thus any validation rule that is desired, can be created. */
+export enum ValidationType {
+  Require = "isRequired",
+  MinLength = "minLength",
+  MaxLength = "maxLength",
+  MinValue = "minValue",
+  MaxValue = "maxValue",
+  MinUppercaseCharacters = "minUppercaseCharacters",
+  MaxUppercaseCharacters = "maxUppercaseCharacters",
+  MinNumericalSymbols = "minNumericalSymbols",
+  MaxNumericalSymbols = "maxNumericalSymbols",
+  CustomRule = "customRule",
+}
+
+export interface Validator {
+  type: ValidationType;
+  value: ValidationValue<InputValueType, FormEntryConstraint>;
+}
