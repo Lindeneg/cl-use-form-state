@@ -10,29 +10,47 @@ import {
 } from "./form.shared";
 import { getValidator, validate, validateState } from "./form.validation";
 
+/**
+ * `Enum` of supported form actions. Can be extended but
+ * should cover the majority of use-cases for a form.
+ */
 enum FormAction {
   INPUT_CHANGE = "INPUT_CHANGE",
   INPUT_TOUCH = "INPUT_TOUCH",
   SET_FORM = "SET_FORM",
 }
 
+/**
+ * Payload to be passed onto the reducer. `ìd` should
+ * always correspond to a key in the `state.inputs` object.
+ */
 interface FormPayload<S extends FormEntryConstraint, T extends keyof Inputs<S>>
   extends Pick<FormEntryState<InputValueType>, "value"> {
   readonly id: T;
   readonly state?: FormState<FormEntryConstraint>;
 }
 
-type FormElementConstraint =
+/**
+ * Supported `HTMLElements` an `EventHandler` can be tied to.
+ * This constraint guarantees the available type of `event`.
+ */
+export type FormElementConstraint =
   | HTMLInputElement
   | HTMLTextAreaElement
   | HTMLSelectElement
   | HTMLOptionElement;
 
+/**
+ * `FormAction` type determines how the `payload` is handled.
+ */
 type ReducerAction<S extends FormEntryConstraint, T extends keyof Inputs<S>> = {
   type: FormAction;
   payload: FormPayload<S, T>;
 };
 
+/**
+ * Validation options for `getInput` function.
+ */
 export type GetInputOptions<
   T extends InputValueType,
   S extends FormEntryConstraint
@@ -59,11 +77,11 @@ export type GetInputOptions<
 };
 
 /**
- * Get an object of type FormEntryState by just defining the input type, initial value and options.
+ * Get an object of type `FormEntryState` by just defining the input type, initial value and options.
  *
  * @param initialValue - initial value of the input entry.
  * @param options      - (optional) options for initial input state and validation
- * @returns Object of type FormEntryState
+ * @returns Object of type `FormEntryState`
  */
 export function getInput<
   T extends InputValueType,
@@ -99,9 +117,9 @@ export function getInput<
  * If we have input A and input B and input B is dependent upon input A. Then we'd like to be able to
  * run the validation for input B each time the value of input A changes.
  *
- * @param state   - current FormState where the connected inputs can be found
+ * @param state    - current `FormState` where the connected inputs can be found
  * @param targetId - Id of the owning input (input A in the example above)
- * @returns An object with entry keys and their updated object of type FormEntryState
+ * @returns An object with entry keys and their updated object of type `FormEntryState`
  */
 const handleConnectedFields = (
   state: FormState<FormEntryConstraint>,
@@ -126,17 +144,17 @@ const handleConnectedFields = (
     });
     return newInputState;
   } catch (err) {
-    process.env.NODE_ENV !== "production" && console.error(err);
+    process.env.NODE_ENV === "development" && console.error(err);
     return state.inputs;
   }
 };
 
 /**
- * Handle changes to FormState given an action associated with a payload.
+ * Handle changes to `FormState` given an action associated with a payload.
  *
- * @param state Object with current FormState
- * @param action FormAction and FormPayload to handle
- * @returns Object with the updated FormState
+ * @param state  - Object with current `FormState`
+ * @param action - `FormAction` and `FormPayload` to handle
+ * @returns Object with the updated `FormState`
  */
 function formReducer<S extends FormState<FormEntryConstraint>>(
   state: S,
@@ -176,7 +194,7 @@ function formReducer<S extends FormState<FormEntryConstraint>>(
           isValid: validateState(newState),
         };
       } catch (err) {
-        process.env.NODE_ENV !== "test" &&
+        process.env.NODE_ENV === "development" &&
           console.error(
             `use-form-state cannot recognize input-id '${pl.id}'. Please make sure that all form input names are tied to a form element, such as <input id='${pl.id}' />.`
           );
@@ -195,7 +213,7 @@ function formReducer<S extends FormState<FormEntryConstraint>>(
           },
         };
       } catch (err) {
-        process.env.NODE_ENV !== "test" &&
+        process.env.NODE_ENV === "development" &&
           console.error(
             `use-form-state cannot recognize input-id '${pl.id}'. Please make sure that all form input names are tied to a form element, such as <input id='${pl.id}' />.`
           );
@@ -213,6 +231,13 @@ function formReducer<S extends FormState<FormEntryConstraint>>(
   return state;
 }
 
+/**
+ * Get `FormState` from an initial state of inputs
+ *
+ * @param initialState - Object with initial `FormState` or initial `Inputs`
+
+ * @returns `FormState` object
+ */
 function getState<S extends FormEntryConstraint>(
   initialState: FormState<S> | Inputs<S>
 ): FormState<S> {
@@ -236,9 +261,9 @@ function getState<S extends FormEntryConstraint>(
 /**
  * React hook for managing the state of a form and its associated inputs.
  *
- * @param initialState - Object with initial FormState or initial Inputs
+ * @param initialState - Object with initial `FormState` or initial `Inputs`
 
- * @returns Object of UseForm type with specified properties and types.
+ * @returns Object with form state and event handlers.
  */
 export function useForm<S extends FormEntryConstraint>(
   initialState: (
