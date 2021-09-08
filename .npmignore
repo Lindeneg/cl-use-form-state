@@ -1,0 +1,9 @@
+__mocks__
+node_modules
+src
+tests
+.gitingore
+jest.config.js
+rollup.config.js
+tsconfig.json
+yarn.lock

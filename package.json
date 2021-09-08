@@ -1,64 +1,62 @@
 {
-    "name": "cl-use-form-state",
-    "description": "Small utility to keep track of form state in React.",
-    "version": "1.2.1",
-    "author": {
-        "name": "Christian Lindeneg",
-        "email": "hi@lindeneg.org",
-        "url": "https://lindeneg.org"
-    },
-    "keywords": [
-        "react",
-        "react-form",
-        "form-state",
-        "form-validation"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/lindeneg/cl-use-form-state.git"
-    },
-    "homepage": "https://github.com/lindeneg/cl-use-form-state#readme",
-    "license": "MIT",
-    "main": "lib/index.js",
-    "module": "lib/index.esm.js",
-    "scripts": {
-        "build": "rollup -c",
-        "test": "jest",
-        "test:watch": "jest --watch",
-        "clean": "yarn run clean:soft",
-        "clean:soft": "rm -rf ./lib",
-        "clean:hard": "yarn run clean:soft && rm -rf ./node_modules",
-        "clean:reset": "yarn run clean:hard && rm yarn.lock",
-        "style": "yarn run style:format && yarn run style:lint",
-        "style:lint": "yarn eslint ./src --cache --config ./.eslintrc.json",
-        "style:format": "yarn prettier ./src --check --config ./.prettierrc",
-        "style:fix": "yarn prettier ./src --write --config ./.prettierrc"
-    },
-    "peerDependencies": {
-        "react": "^17.0.2"
-    },
-    "devDependencies": {
-        "@babel/core": "^7.14.0",
-        "@rollup/plugin-commonjs": "^18.0.0",
-        "@rollup/plugin-node-resolve": "^11.2.1",
-        "@types/jest": "^26.0.22",
-        "@types/react": "^17.0.3",
-        "@typescript-eslint/eslint-plugin": "^4.22.0",
-        "@typescript-eslint/parser": "^4.22.0",
-        "babel-loader": "^8.2.2",
-        "eslint": "^7.25.0",
-        "eslint-plugin-react": "^7.23.2",
-        "eslint-plugin-react-hooks": "^4.2.0",
-        "jest": "^26.6.3",
-        "prettier": "^2.2.1",
-        "react": "^17.0.2",
-        "react-hooks-testing-library": "^0.6.0",
-        "react-test-renderer": "^17.0.2",
-        "rollup": "^2.46.0",
-        "rollup-plugin-cleaner": "^1.0.0",
-        "rollup-plugin-peer-deps-external": "^2.2.4",
-        "rollup-plugin-typescript2": "^0.30.0",
-        "ts-jest": "^26.5.5",
-        "typescript": "^4.2.3"
-    }
+  "name": "cl-use-form-state",
+  "description": "React hook to keep track of form input state & validation.",
+  "version": "2.0.0",
+  "author": {
+    "name": "Christian Lindeneg",
+    "email": "hi@lindeneg.org",
+    "url": "https://lindeneg.org"
+  },
+  "keywords": [
+    "react",
+    "javascript",
+    "typescript",
+    "form",
+    "state",
+    "validation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lindeneg/cl-use-form-state.git"
+  },
+  "homepage": "https://github.com/lindeneg/cl-use-form-state#readme",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "module": "lib/index.esm.js",
+  "scripts": {
+    "build": "rollup -c",
+    "test": "jest --verbose",
+    "test:watch": "jest --watch",
+    "clean": "yarn run clean:soft",
+    "clean:soft": "rm -rf ./lib",
+    "clean:hard": "yarn run clean:soft && rm -rf ./node_modules",
+    "clean:reset": "yarn run clean:hard && rm yarn.lock",
+    "style": "yarn prettier ./src --check",
+    "style:fix": "yarn prettier ./src --write",
+    "prepublish": "yarn run style && yarn run test && yarn run clean && yarn run build"
+  },
+  "peerDependencies": {
+    "react": "^17.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.14.0",
+    "@rollup/plugin-commonjs": "^18.0.0",
+    "@rollup/plugin-node-resolve": "^11.2.1",
+    "@types/jest": "^26.0.22",
+    "@types/react": "^17.0.3",
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
+    "babel-loader": "^8.2.2",
+    "jest": "^26.6.3",
+    "prettier": "^2.2.1",
+    "react": "^17.0.2",
+    "react-hooks-testing-library": "^0.6.0",
+    "react-test-renderer": "^17.0.2",
+    "rollup": "^2.46.0",
+    "rollup-plugin-cleaner": "^1.0.0",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-typescript2": "^0.30.0",
+    "ts-jest": "^26.5.5",
+    "typescript": "^4.2.3"
+  }
 }

@@ -1,104 +1,91 @@
-import { FormState, FormValueType, Inputs, getInput, FormEntryConstraint } from '../src/form.hook';
 import {
-    validate,
-    getValidator,
-    ValidationType,
-    Validator,
-    ValidationValue
-} from '../src/form.validation';
+  FormState,
+  GetInputOptions,
+  InputValueType,
+  ValidationType,
+  Validator,
+  ValidationValue,
+  FormEntryConstraint,
+} from "../src/form.shared";
+import { validate, getValidator } from "../src/form.validation";
 
 export type TestInputState = {
-    age: number;
-    username: string;
-    password: string;
-    confirmPassword?: string;
+  age: number;
+  username: string;
+  password: string;
+  confirmPassword?: string;
 };
 
-export const getEmptyState = (): FormState<FormEntryConstraint> => ({ inputs: {}, isValid: false });
+export type MetaState = {
+  key: keyof TestInputState;
+  value: unknown;
+  options: GetInputOptions<unknown, TestInputState>;
+};
 
-export const getInitialInvalidInputs = (): Inputs<TestInputState> => ({
-    age: getInput<number>(25, { isValid: true, minValue: 18 }),
-    username: getInput<string>('', { minLength: 5, maxLength: 12, maxNumericalSymbols: 0 }),
-    password: getInput<string>('', {
+export function getEmptyState<T extends FormEntryConstraint>() {
+  return {
+    inputs: {},
+    isValid: false,
+  } as FormState<T>;
+}
+
+export const getState = (
+  description: string,
+  type: "initial" | "valid" | "invalid"
+): {
+  description: string;
+  valid: boolean;
+  inputs: Array<{
+    key: string;
+    value: unknown;
+    options: GetInputOptions<unknown, TestInputState>;
+  }>;
+} => ({
+  description,
+  valid: type === "valid",
+  inputs: [
+    {
+      key: "age",
+      value: 25,
+      options: { isValid: true, minValue: type === "initial" ? 10 : 18 },
+    },
+    {
+      key: "username",
+      value: type === "valid" ? "hello" : "",
+      options: {
+        minLength: 5,
+        maxLength: 12,
+        maxNumericalSymbols: 0,
+        isValid: type === "valid",
+      },
+    },
+    {
+      key: "password",
+      value: type === "valid" ? "helloT5" : "",
+      options: {
         minLength: 8,
         maxLength: 20,
         minNumericalSymbols: 1,
         minUppercaseCharacters: 1,
-        connectFields: ['confirmPassword']
-    })
-});
-
-export const getInitialValidInputs = (): Inputs<TestInputState> => ({
-    age: getInput<number>(25, { isValid: true, minValue: 18 }),
-    username: getInput<string>('hello', {
-        isValid: true,
-        minLength: 5,
-        maxLength: 12,
-        maxNumericalSymbols: 0
-    }),
-    password: getInput<string>('helloT5', {
-        isValid: true,
-        minLength: 8,
-        maxLength: 20,
-        minNumericalSymbols: 1,
-        minUppercaseCharacters: 1
-    })
-});
-
-export const getInitialState = (): FormState<TestInputState> => ({
-    inputs: {
-        age: getInput<number>(25, { isValid: true, minValue: 18 }),
-        username: getInput<string>('', { minLength: 5, maxLength: 12, maxNumericalSymbols: 0 }),
-        password: getInput<string>('', {
-            minLength: 8,
-            maxLength: 20,
-            minNumericalSymbols: 1,
-            minUppercaseCharacters: 1,
-            connectFields: ['confirmPassword']
-        })
+        connectFields: ["confirmPassword"],
+        isValid: type === "valid",
+      },
     },
-    isValid: false
+  ],
 });
 
-export const getConfirmedState = (): FormState<TestInputState> => {
-    const state = getInitialState();
-    return {
-        ...state,
-        inputs: {
-            ...state.inputs,
-            confirmPassword: getInput<string, TestInputState>('', {
-                customRule: (value, state) => {
-                    return state.inputs.password.isValid && state.inputs.password.value === value;
-                }
-            })
-        },
-        isValid: state.isValid
-    };
-};
-
-export const getConfirmedInputs = (): Inputs<TestInputState> => {
-    const inputs = getInitialInvalidInputs();
-    return {
-        ...inputs,
-        confirmPassword: getInput<string, TestInputState>('', {
-            customRule: (value, state) => {
-                return state.inputs.password.isValid && state.inputs.password.value === value;
-            }
-        })
-    };
-};
-
-export const getValidationResult = (
-    validValue: FormValueType,
-    invalidValue: FormValueType,
-    state: FormState<FormEntryConstraint> | null,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ...validatorsTypes: Array<[ValidationType, ValidationValue<any, any>]>
-): [boolean, boolean] => {
-    const currentState = state !== null ? state : getEmptyState();
-    const validators: Validator[] = validatorsTypes.map((e) => getValidator(e[0], e[1]));
-    return [
-        validate(validValue, validators, currentState),
-        validate(invalidValue, validators, currentState)
-    ];
-};
+export function getValidationResult<T extends FormEntryConstraint>(
+  validValue: InputValueType,
+  invalidValue: InputValueType,
+  state: FormState<T> | null,
+  ...validatorsTypes: Array<[ValidationType, ValidationValue<any, any>]>
+): [boolean, boolean] {
+  const currentState = state !== null ? state : getEmptyState<T>();
+  const validators: Validator[] = validatorsTypes.map((e) =>
+    getValidator(e[0], e[1])
+  );
+  return [
+    validate(validValue, validators, currentState),
+    validate(invalidValue, validators, currentState),
+  ];
+}
