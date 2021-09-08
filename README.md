@@ -162,7 +162,7 @@ onClick={() => updateInput("age", "someValue")}  // expects number
 
 A `customRule` must be a function that takes two arguments, `value` and `state`. The value will always be the newest value of the associated input field while the state always will be the newest state of the entire form.
 
-Lets say you have an input where you'd only want to support any given `username` that starts with **C**, ends with **h** and has a maximum length of the current `age` value:
+Lets say we have an input where we'd only want to support any given `username` that starts with **C**, ends with **h** and has a maximum length of the current `age` value:
 
 ```ts
 const form = useForm<{
