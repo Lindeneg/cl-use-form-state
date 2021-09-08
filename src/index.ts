@@ -1,7 +1,8 @@
 export { default as useForm, getInput } from "./form.hook";
 export { validate, validateState, getValidator } from "./form.validation";
-export type { GetInputOptions, FormElementConstraint } from "./form.hook";
+export type { FormElementConstraint } from "./form.hook";
 export type {
+  GetInputOptions,
   ValidationType,
   CustomValidationRule,
   ValidationValue,
