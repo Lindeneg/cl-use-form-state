@@ -23,8 +23,7 @@
   },
   "homepage": "https://github.com/lindeneg/cl-use-form-state#readme",
   "license": "MIT",
-  "main": "lib/index.js",
-  "module": "lib/index.esm.js",
+  "main": "lib/index.esm.js",
   "typings": "lib/index.d.ts",
   "files": [
     "lib"

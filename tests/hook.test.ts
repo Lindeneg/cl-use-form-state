@@ -1,7 +1,7 @@
 import { renderHook, act } from "@testing-library/react-hooks";
-import { useForm, getInput } from "../src/form.hook";
-import { FormEntryConstraint, FormState, Inputs } from "../src/form.shared";
-import { validate } from "../src/form.validation";
+import { useForm, getInput } from "../src/hook";
+import { Inputs } from "../src/shared";
+import { validate } from "../src/validation";
 import { TestInputState, getEmptyState, getState } from "./test-util";
 
 test("can get empty input correctly initialized", () => {
@@ -320,17 +320,6 @@ test("can setForm with state", () => {
   expect(result.current.inputs.username).toBeDefined();
   expect(result.current.inputs.password).toBeDefined();
 });
-
-/*
-{
-        customRule: (value: unknown, state: FormState<FormEntryConstraint>) => {
-          return (
-            state.inputs.password.isValid &&
-            state.inputs.password.value === value
-          );
-        },
-      },
-*/
 
 test.each([
   (() => {

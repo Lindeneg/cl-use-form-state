@@ -1,6 +1,13 @@
-export { default as useForm, getInput } from "./form.hook";
-export { validate, validateState, getValidator } from "./form.validation";
-export type { FormElementConstraint } from "./form.hook";
+export { default as useForm, getInput } from "./hook";
+export {
+  validate,
+  validateState,
+  getValidator,
+  count,
+  countNumbers,
+  countUpperCase,
+} from "./validation";
+export type { FormElementConstraint } from "./hook";
 export type {
   GetInputOptions,
   ValidationType,
@@ -12,5 +19,5 @@ export type {
   FormState,
   FormEntryConstraint,
   Inputs,
-} from "./form.shared";
-export type { ValidationFunc } from "./form.validation";
+} from "./shared";
+export type { ValidationFunc } from "./validation";

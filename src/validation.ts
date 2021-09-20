@@ -5,8 +5,11 @@ import {
   Validator,
   ValidationValue,
   ValidationType,
-} from "./form.shared";
+} from "./shared";
 
+/**
+ * Validation function takes at least two args and at most four and always returns a boolean
+ */
 export type ValidationFunc<S extends FormEntryConstraint> = (
   value: InputValueType,
   isValid: boolean,
@@ -14,10 +17,19 @@ export type ValidationFunc<S extends FormEntryConstraint> = (
   state?: FormState<S>
 ) => boolean;
 
-export const count = (
+/**
+ * Count something by providing a callback that returns a boolean
+ * If callback returns true, the counter is incremented
+ *
+ * @param target   - Target to count something in
+ * @param callback - Function that returns on each element of `target`
+ *
+ * @returns Number of matches
+ */
+export function count(
   target: string,
   callback: (entry: string) => boolean
-): number => {
+): number {
   let result = 0;
   for (let i = 0; i < target.length; i++) {
     if (callback(target[i])) {
@@ -25,19 +37,29 @@ export const count = (
     }
   }
   return result;
-};
+}
 
-export const countUpperCase = (target: string): number => {
+export function countUpperCase(target: string): number {
   return count(target, (e) => e >= "A" && e <= "Z");
-};
+}
 
-export const countNumbers = (target: string): number => {
+export function countNumbers(target: string): number {
   return count(target, (e) => {
     const n = parseInt(e);
     return typeof n === "number" && !Number.isNaN(n);
   });
-};
+}
 
+/**
+ * Check if an input is valid given validation rule(s)
+ *
+ * @param isValid           - Current input validation state
+ * @param value             - Current input value
+ * @param validatorValue    - Value used for validation
+ * @param callback          - Callback used to validate input
+ *
+ * @returns Boolean with validity of input
+ */
 function checkIsValid<T extends InputValueType>(
   isValid: boolean,
   value: InputValueType,
@@ -62,6 +84,9 @@ function checkIsValid<T extends InputValueType>(
   return isValid;
 }
 
+/**
+ * Object of `ValidationType` keys with `ValidationFunc` values
+ */
 const validationFunc: {
   [key: string]: ValidationFunc<FormState<FormEntryConstraint>>;
 } = {

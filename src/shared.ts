@@ -1,8 +1,8 @@
 /**
  * In theory, the input value could be anything
- * so `unknown` is the most appropriate type here.
+ * so `unknown` is the most appropriate type here
  * Once the hook gets used, we're able to infer the
- * correct input type given an input key.
+ * correct input type given an input key
  */
 export type InputValueType = unknown;
 
@@ -13,7 +13,7 @@ export type InputValueType = unknown;
 export type FormEntryConstraint = { [key: string]: InputValueType };
 
 /**
- * `inputs` contains `string` keys with `FormEntryState` values.
+ * `inputs` contains `string` keys with `FormEntryState` values
  * `isValid` is only true if all form `inputs` are valid
  */
 export type FormState<T extends FormEntryConstraint> = {
@@ -29,8 +29,8 @@ export type Inputs<T extends FormEntryConstraint> = {
 };
 
 /**
- * This is the base for any input entry in a `formState`. In other words
- * all input entries will have these properties available.
+ * This is the base for any input entry in a `formState`
+ * In other words all input entries will have these properties available.
  */
 export type FormEntryState<
   T extends InputValueType,
@@ -47,7 +47,7 @@ export type FormEntryState<
  * Function that is tied to a custom rule. Must return
  * a `boolean` and will always receive two arguments:
  * `value`: current value of the input field where this custom rule is tied
- * `state`: the most updated state of the entire form.
+ * `state`: the most updated state of the entire form
  */
 export type CustomValidationRule<
   T extends InputValueType,
@@ -55,7 +55,7 @@ export type CustomValidationRule<
 > = (value: T, state: FormState<S>) => boolean;
 
 /**
- * The validation value will either be the input value or a custom rule function.
+ * The validation value will either be the input value or a custom rule function
  */
 export type ValidationValue<
   T extends InputValueType,
@@ -64,7 +64,7 @@ export type ValidationValue<
 
 /**
  * Predefined validation options. However, a custom rule, which takes a function
- * can be created and thus any validation rule that is desired, can be created.
+ * can be created and thus any validation rule that is desired, can be created
  */
 export enum ValidationType {
   Require = "isRequired",
@@ -80,7 +80,7 @@ export enum ValidationType {
 }
 
 /**
- * `ValidationType` determines how the `value` is handled.
+ * `ValidationType` determines how the `value` is handled
  */
 export interface Validator {
   type: ValidationType;
@@ -96,7 +96,7 @@ export type KeyOf<
 > = T;
 
 /**
- * Validation options for `getInput` function.
+ * Validation options for `getInput` function
  */
 export type GetInputOptions<
   T extends InputValueType,

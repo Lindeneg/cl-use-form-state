@@ -7,12 +7,12 @@ import {
   Inputs,
   ValidationType,
   GetInputOptions,
-} from "./form.shared";
-import { getValidator, validate, validateState } from "./form.validation";
+} from "./shared";
+import { getValidator, validate, validateState } from "./validation";
 
 /**
  * `Enum` of supported form actions. Can be extended but
- * should cover the majority of use-cases for a form.
+ * should cover the majority of use-cases for a form
  */
 enum FormAction {
   INPUT_CHANGE = "INPUT_CHANGE",
@@ -22,7 +22,7 @@ enum FormAction {
 
 /**
  * Payload to be passed onto the reducer. `ìd` should
- * always correspond to a key in the `state.inputs` object.
+ * always correspond to a key in the `state.inputs` object
  */
 interface FormPayload<S extends FormEntryConstraint, T extends keyof Inputs<S>>
   extends Pick<FormEntryState<InputValueType, S>, "value"> {
@@ -31,8 +31,8 @@ interface FormPayload<S extends FormEntryConstraint, T extends keyof Inputs<S>>
 }
 
 /**
- * Supported `HTMLElements` an `EventHandler` can be tied to.
- * This constraint guarantees the available type of `event`.
+ * Supported `HTMLElements` an `EventHandler` can be tied to
+ * This constraint guarantees the available type of `event`
  */
 export type FormElementConstraint =
   | HTMLInputElement
@@ -41,7 +41,7 @@ export type FormElementConstraint =
   | HTMLOptionElement;
 
 /**
- * `FormAction` type determines how the `payload` is handled.
+ * `FormAction` type determines how the `payload` is handled
  */
 type ReducerAction<S extends FormEntryConstraint, T extends keyof Inputs<S>> = {
   type: FormAction;
@@ -49,9 +49,9 @@ type ReducerAction<S extends FormEntryConstraint, T extends keyof Inputs<S>> = {
 };
 
 /**
- * Get an object of type `FormEntryState` by just defining the input type, initial value and options.
+ * Get an object of type `FormEntryState` by just defining the input type, initial value and options
  *
- * @param initialValue - initial value of the input entry.
+ * @param initialValue - initial value of the input entry
  * @param options      - (optional) options for initial input state and validation
  * @returns Object of type `FormEntryState`
  */
@@ -87,7 +87,7 @@ export function getInput<
  * Handle all connected fields tied to a certain input. This is useful for the following reason:
  *
  * If we have input A and input B and input B is dependent upon input A. Then we'd like to be able to
- * run the validation for input B each time the value of input A changes.
+ * run the validation for input B each time the value of input A changes
  *
  * @param state    - current `FormState` where the connected inputs can be found
  * @param targetId - Id of the owning input (input A in the example above)
@@ -122,7 +122,7 @@ function handleConnectedFields<S extends FormEntryConstraint>(
 }
 
 /**
- * Handle changes to `FormState` given an action associated with a payload.
+ * Handle changes to `FormState` given an action associated with a payload
  *
  * @param state  - Object with current `FormState`
  * @param action - `FormAction` and `FormPayload` to handle
@@ -136,7 +136,7 @@ function formReducer<S extends FormEntryConstraint>(
   switch (action.type) {
     case FormAction.INPUT_CHANGE:
       try {
-        // copy the current state, update the entry with the specified payload Id and validate it.
+        // copy the current state, update the entry with the specified payload Id and validate it
         const newState: FormState<S> = {
           ...state,
           inputs: {
@@ -152,7 +152,7 @@ function formReducer<S extends FormEntryConstraint>(
             },
           },
         };
-        // copy the inputs and validate connected fields given the now updated state.
+        // copy the inputs and validate connected fields given the now updated state
         newState.inputs = {
           ...newState.inputs,
           ...handleConnectedFields(newState, pl.id),
@@ -252,11 +252,11 @@ function getState<S extends FormEntryConstraint>(
 }
 
 /**
- * React hook for managing the state of a form and its associated inputs.
+ * React hook for managing the state of a form and its associated inputs
  *
  * @param initialState - Object with initial `FormState` or initial `Inputs`
 
- * @returns Object with form state and event handlers.
+ * @returns Object with form state and event handlers
  */
 export function useForm<S extends FormEntryConstraint>(
   initialState: (
@@ -275,7 +275,7 @@ export function useForm<S extends FormEntryConstraint>(
   const { inputs, isValid } = formState;
 
   /**
-   * Callback to (re)set the entire form state.
+   * Callback to (re)set the entire form state
    */
   const setFormState = useCallback((state: FormState<S> | Inputs<S>): void => {
     dispatch({
@@ -285,7 +285,7 @@ export function useForm<S extends FormEntryConstraint>(
   }, []);
 
   /**
-   * Runs every time the element this handler is tied, is focused.
+   * Runs every time the element this handler is tied, is focused
    */
   const onTouchHandler: React.FocusEventHandler<FormElementConstraint> = useCallback(
     (event) => {
@@ -298,7 +298,7 @@ export function useForm<S extends FormEntryConstraint>(
   );
 
   /**
-   * Optional callback to update the value of a given input.
+   * Optional callback to update the value of a given input
    */
   const updateInput = useCallback(
     <T extends keyof Inputs<S>>(id: T, value: S[T]) => {
@@ -315,7 +315,7 @@ export function useForm<S extends FormEntryConstraint>(
 
   /**
    * Get a converted version of `Inputs` where each `input` key
-   * only has it's current `value` as a value.
+   * only has it's current `value` as a value
    */
   const getInputValues = useCallback(() => {
     return Object.keys(inputs)
@@ -324,7 +324,7 @@ export function useForm<S extends FormEntryConstraint>(
   }, [inputs]);
 
   /**
-   * Runs every time the element this handler is tied to, changes.
+   * Runs every time the element this handler is tied to, changes
    */
   const onChangeHandler: React.ChangeEventHandler<FormElementConstraint> = useCallback(
     (event) => {
