@@ -1,5 +1,5 @@
 import { getValidationResult } from "./test-util";
-import { ValidationType, FormState } from "../src/form.shared";
+import { ValidationType, FormState } from "../src/shared";
 
 test("can getResult create correct validation result", () => {
   const notValidWithOption = getValidationResult("", "", null, [

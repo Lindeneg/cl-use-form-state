@@ -12,6 +12,8 @@ React form state and validation hook with great TypeScript support.
 
 ##### Usage
 
+_Check out [this](https://github.com/Lindeneg/cl-form-component#readme) repository for a complete Form component built on top of this library and [MaterialUI v.4](https://v4.mui.com/)._
+
 ```tsx
 import React from "react";
 import { useForm } from "cl-use-form-state";
@@ -36,21 +38,21 @@ export function Component() {
     onTouchHandler,
     // optional function to update input value
     updateInput,
-    // optional function set (re)set entire form state
+    // optional function to (re)set entire form state
     setFormState,
-  } = useForm<FormInputs>((createInput) => {
+  } = useForm<FormInputs>((cl) => {
     /* useForm takes a function as its argument and that function
        receives another function that can be used to create inputs 
        All defined inputs must be present in the returned object */
     return {
-      username: createInput("", { minLength: 1, maxLength: 32 }),
-      password: createInput("", {
+      username: cl("", { minLength: 1, maxLength: 32 }),
+      password: cl("", {
         minLength: 8,
         maxLength: 64,
         minNumericalSymbols: 1,
         minUppercaseCharacters: 1,
       }),
-      age: createInput(null, { minValue: 18 }),
+      age: cl(null, { minValue: 18 }),
     };
   });
 
@@ -107,9 +109,9 @@ export function Component() {
 
 ---
 
-##### createInput
+##### cl
 
-`createInput` takes two arguments. An initial value and an object with options for the created input.
+`cl` takes two arguments. An initial value and an object with options for the created input.
 
 | name                     | type                                                   | default     | note                                                                                                                                |
 | ------------------------ | ------------------------------------------------------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |

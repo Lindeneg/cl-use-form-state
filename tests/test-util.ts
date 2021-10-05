@@ -6,8 +6,8 @@ import {
   Validator,
   ValidationValue,
   FormEntryConstraint,
-} from "../src/form.shared";
-import { validate, getValidator } from "../src/form.validation";
+} from "../src/shared";
+import { validate, getValidator } from "../src/validation";
 
 export type TestInputState = {
   age: number;

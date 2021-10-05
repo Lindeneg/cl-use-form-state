@@ -10,15 +10,9 @@ export default {
   output: [
     {
       file: packageJson.main,
-      format: "cjs",
-      sourcemap: true,
-      exports: "named",
-    },
-    {
-      file: packageJson.module,
       format: "esm",
-      exports: "named",
       sourcemap: true,
+      exports: "named",
     },
   ],
   plugins: [

@@ -1,15 +1,11 @@
-import { getInput } from "../src/form.hook";
-import {
-  FormState,
-  ValidationType,
-  CustomValidationRule,
-} from "../src/form.shared";
+import { getInput } from "../src/hook";
+import { FormState, ValidationType, CustomValidationRule } from "../src/shared";
 import {
   count,
   countNumbers,
   countUpperCase,
   validateState,
-} from "../src/form.validation";
+} from "../src/validation";
 import { getEmptyState, getValidationResult } from "./test-util";
 
 test("can validate invalid state", () => {
