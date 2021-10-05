@@ -16,7 +16,7 @@ _Check out [this](https://github.com/Lindeneg/cl-form-component#readme) reposito
 
 ##### Usage
 
-_Check out [this](https://codesandbox.io/s/cl-use-form-state-182nd) sandbox for an example_
+###### Check out [this](https://codesandbox.io/s/cl-use-form-state-182nd) sandbox for an example
 
 ```tsx
 import React from "react";
@@ -25,7 +25,7 @@ import { useForm } from "cl-use-form-state";
 type FormInputs = {
   username: string;
   password: string;
-  age: number | null;
+  age: number;
 };
 
 export function Component() {
@@ -56,58 +56,10 @@ export function Component() {
         minNumericalSymbols: 1,
         minUppercaseCharacters: 1,
       }),
-      age: cl(null, { minValue: 18 }),
+      age: cl(20, { minValue: 18 }),
     };
   });
-
-  // deconstruct inputs for better accessability
-  const { username, password, age } = inputs;
-
-  // each key in the inputs object must be used as element ids
-  return (
-    <>
-      <input
-        id="username"
-        type="text"
-        value={username.value}
-        onChange={onChangeHandler}
-        onBlur={onTouchHandler}
-      />
-      <p>
-        {`Username isValid: ${username.isValid} | isTouched: ${username.isTouched}`}
-      </p>
-      <input
-        id="password"
-        type="password"
-        value={password.value}
-        onChange={onChangeHandler}
-        onBlur={onTouchHandler}
-      />
-      <p>
-        {`Password isValid: ${password.isValid} | isTouched: ${password.isTouched}`}
-      </p>
-      <input
-        id="age"
-        type="number"
-        onChange={onChangeHandler}
-        onBlur={onTouchHandler}
-        value={age.value || ""}
-      />
-      <p>{`Age isValid: ${age.isValid} | isTouched: ${age.isTouched}`}</p>
-      <hr />
-      <p>{`Form isValid: ${isValid}`}</p>
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          console.log("getInputValues:", getInputValues());
-          console.log("inputs:", inputs);
-        }}
-        disabled={!isValid}
-      >
-        Submit
-      </button>
-    </>
-  );
+  return <>{...yourJsx}</>;
 }
 ```
 
