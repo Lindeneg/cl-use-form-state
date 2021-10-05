@@ -4,7 +4,11 @@ React form state and validation hook with great TypeScript support.
 
 ---
 
-###### Install
+There are no dependencies besides [React](https://reactjs.org/) as a [peer dependency](https://yarnpkg.com/configuration/manifest/#peerDependencies).
+
+_Check out [this](https://github.com/Lindeneg/cl-form-component#readme) repository for a complete Form component built on top of this library and [MaterialUI v.4](https://v4.mui.com/)._
+
+##### Install
 
 `yarn add cl-use-form-state`
 
@@ -12,7 +16,7 @@ React form state and validation hook with great TypeScript support.
 
 ##### Usage
 
-_Check out [this](https://github.com/Lindeneg/cl-form-component#readme) repository for a complete Form component built on top of this library and [MaterialUI v.4](https://v4.mui.com/)._
+_Check out [this](https://codesandbox.io/s/cl-use-form-state-182nd) sandbox for an example_
 
 ```tsx
 import React from "react";
