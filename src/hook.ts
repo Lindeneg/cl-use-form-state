@@ -211,7 +211,7 @@ function formReducer<S extends FormEntryConstraint>(
  * @returns Result of conversion. 
  */
 function maybeGetNumber(target: string | null): number | string | null {
-  if (target !== null) {
+  if (target !== null && target.trim() !== "") {
     try {
       const number = Number(target);
       if (typeof number === "number" && !Number.isNaN(number)) {
