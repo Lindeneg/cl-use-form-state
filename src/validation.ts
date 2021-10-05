@@ -218,11 +218,15 @@ export const validate = <S extends FormEntryConstraint>(
 ): boolean => {
   let isValid = true;
   validators.forEach((validator) => {
-    const func = validationFunc[validator.type] as
-      | ValidationFunc<S>
-      | undefined;
-    if (typeof func !== "undefined") {
-      isValid = func(value, isValid, validator, state);
+    if (validator.type === ValidationType.Require && !validator.value) {
+      return true;
+    } else {
+      const func = validationFunc[validator.type] as
+        | ValidationFunc<S>
+        | undefined;
+      if (typeof func !== "undefined") {
+        isValid = func(value, isValid, validator, state);
+      }
     }
   });
   return isValid;
