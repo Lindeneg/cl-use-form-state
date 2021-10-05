@@ -204,27 +204,6 @@ function formReducer<S extends FormEntryConstraint>(
 }
 
 /**
- * Try and get a number if the input is non-null
- *
- * @param target - Target to try and convert to number
-
- * @returns Result of conversion. 
- */
-function maybeGetNumber(target: string | null): number | string | null {
-  if (target !== null && target.trim() !== "") {
-    try {
-      const number = Number(target);
-      if (typeof number === "number" && !Number.isNaN(number)) {
-        return number;
-      }
-    } catch (err) {
-      process.env.NODE_ENV === "development" && console.error(err);
-    }
-  }
-  return target;
-}
-
-/**
  * Get `FormState` from an initial state of inputs
  *
  * @param initialState - Object with initial `FormState` or initial `Inputs`
@@ -333,8 +312,9 @@ export function useForm<S extends FormEntryConstraint>(
         payload: {
           id: event.target.id,
           value:
-            event.target.getAttribute("type") === "number"
-              ? maybeGetNumber(event.target.value)
+            event.target.getAttribute("type") === "number" &&
+            event.target.tagName === "INPUT"
+              ? (event.target as HTMLInputElement).valueAsNumber
               : event.target.value,
         },
       });
