@@ -1,7 +1,7 @@
 {
   "name": "cl-use-form-state",
   "description": "React hook to keep track of form input state & validation.",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "author": {
     "name": "Christian Lindeneg",
     "email": "hi@lindeneg.org",
@@ -23,7 +23,8 @@
   },
   "homepage": "https://github.com/lindeneg/cl-use-form-state#readme",
   "license": "MIT",
-  "main": "lib/index.esm.js",
+  "main": "lib/index.cjs.js",
+  "module": "lib/index.esm.js",
   "typings": "lib/index.d.ts",
   "files": [
     "lib"
